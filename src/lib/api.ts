@@ -36,6 +36,9 @@ export interface AnalyzeCaseResponse {
   next_steps?: string[];
   warnings?: string[];
   fir_guidance?: string;
+  summary?: string;
+  actionPlan?: any;
+  documents?: any;
 }
 
 export interface ApiError {
@@ -86,36 +89,34 @@ export async function analyzeCase(data: AnalyzeCaseRequest): Promise<AnalyzeCase
 // Transform backend response to match your UI expectations
 function transformBackendResponse(backendData: any): AnalyzeCaseResponse {
   // Calculate overall confidence from sections
-  const overallConfidence = backendData.confidence 
+  const overallConfidence = backendData.overallConfidence 
+    ? backendData.overallConfidence
+    : backendData.confidence 
     ? Math.round(backendData.confidence * 100)
     : backendData.sections?.length > 0
-      ? Math.round((backendData.sections.reduce((sum: number, s: any) => sum + (s.confidence || 0), 0) / backendData.sections.length) * 100)
+      ? Math.round((backendData.sections.reduce((sum: number, s: any) => sum + (s.confidence || 0), 0) / backendData.sections.length))
       : 50;
 
   // Transform sections
   const sections: IPCSection[] = (backendData.sections || []).map((section: any, index: number) => ({
     code: section.code,
     name: section.title || section.name || 'Unknown',
-    title: section.title,
+    title: section.title || section.name,
     description: section.description,
     punishment: section.punishment,
     bailable: section.bailable,
     cognizable: section.cognizable,
-    confidence: section.confidence ? Math.round(section.confidence * 100) : 70,
-    matchedKeywords: extractKeywords(section.description || ''),
-    reasoning: section.description || 'Analysis based on provided information',
-    isPrimary: index === 0, // First section is primary
+    confidence: section.confidence || 70,
+    matchedKeywords: section.matchedKeywords || extractKeywords(section.description || ''),
+    reasoning: section.reasoning || section.description || 'Analysis based on provided information',
+    isPrimary: section.isPrimary !== undefined ? section.isPrimary : index === 0,
   }));
 
-  // Determine severity based on confidence and sections
-  const severity = overallConfidence >= 80 ? 'High' : overallConfidence >= 60 ? 'Moderate' : 'Low';
-
-  // Get max punishment from sections
-  const maxPunishment = sections[0]?.punishment || 'Varies by case';
-
-  // Determine bail status
-  const bail = sections[0]?.bailable ? 'Bailable' : sections[0]?.bailable === false ? 'Non-Bailable' : 'To be determined';
-  const bailProbability = sections[0]?.bailable ? 75 : 30;
+  // Use backend values or calculate
+  const severity = backendData.severity || (overallConfidence >= 80 ? 'High' : overallConfidence >= 60 ? 'Moderate' : 'Low');
+  const maxPunishment = backendData.maxPunishment || sections[0]?.punishment || 'Varies by case';
+  const bail = backendData.bail || (sections[0]?.bailable ? 'Bailable' : sections[0]?.bailable === false ? 'Non-Bailable' : 'To be determined');
+  const bailProbability = backendData.bailProbability || (sections[0]?.bailable ? 75 : 30);
 
   return {
     overallConfidence,
@@ -124,12 +125,15 @@ function transformBackendResponse(backendData: any): AnalyzeCaseResponse {
     maxPunishment,
     bail,
     bailProbability,
-    punishmentNote: 'Based on Indian Penal Code provisions',
+    punishmentNote: backendData.punishmentNote || 'Based on Indian Penal Code provisions',
     category: backendData.category,
     explanation: backendData.explanation,
-    next_steps: backendData.next_steps,
+    next_steps: backendData.nextSteps || backendData.next_steps,
     warnings: backendData.warnings,
     fir_guidance: backendData.fir_guidance,
+    summary: backendData.summary,
+    actionPlan: backendData.actionPlan,
+    documents: backendData.documents,
   };
 }
 

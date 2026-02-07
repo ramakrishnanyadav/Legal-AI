@@ -2,13 +2,16 @@
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, validator
-from typing import List, Optional
+from typing import List, Optional, Dict
+from datetime import datetime
 import logging
 
 # IMPORT YOUR SERVICES
 from app.services.classifier import CrimeClassifier
 from app.services.keyword_matcher import KeywordMatcher
 from app.services.hybrid_analyzer import MultiProviderAnalyzer
+from app.services.action_plan_generator import ActionPlanGenerator
+from app.services.document_generator import DocumentGenerator
 from app.models.section import LegalSection
 
 router = APIRouter()
@@ -18,6 +21,8 @@ logger = logging.getLogger(__name__)
 classifier = CrimeClassifier()
 keyword_matcher = KeywordMatcher()
 hybrid_analyzer = MultiProviderAnalyzer()
+action_plan_generator = ActionPlanGenerator()
+document_generator = DocumentGenerator()
 
 # ============================================
 # REQUEST/RESPONSE MODELS - FIXED
@@ -28,6 +33,8 @@ class AnalyzeCaseRequest(BaseModel):
     role: str = "victim"
     caseType: Optional[str] = None
     urgency: bool = False
+    user_id: Optional[str] = None
+    is_authenticated: bool = False
     
     @validator('description')
     def validate_description(cls, v):
@@ -66,6 +73,8 @@ class AnalyzeCaseResponse(BaseModel):
     overallConfidence: int
     summary: str
     nextSteps: List[str]
+    actionPlan: Optional[Dict] = None
+    documents: Optional[Dict] = None
     
     @validator('bailProbability', 'overallConfidence')
     def validate_percentages(cls, v):
@@ -386,7 +395,9 @@ async def analyze_case(request: AnalyzeCaseRequest):
                     "Document all evidence",
                     "Consult with a qualified lawyer",
                     "File formal complaint if wronged"
-                ]
+                ],
+                actionPlan=None,
+                documents=None
             )
         
         # 🔧 FIXED: Convert LegalSection to Section with ALL fields
@@ -423,6 +434,62 @@ async def analyze_case(request: AnalyzeCaseRequest):
         else:
             overall_confidence_int = int(overall_confidence)
         
+        # Generate premium features if authenticated
+        action_plan = None
+        documents = None
+        
+        if request.is_authenticated and request.user_id:
+            logger.info(f"\n5️⃣ GENERATING PREMIUM FEATURES (Authenticated User)")
+            
+            # Generate Action Plan
+            try:
+                action_plan = action_plan_generator.generate_action_plan(
+                    description=description,
+                    sections=final_sections,
+                    case_type=request.caseType or classification.category,
+                    is_urgent=request.urgency
+                )
+                logger.info(f"   ✅ Action plan generated")
+            except Exception as e:
+                logger.error(f"   ❌ Action plan generation failed: {e}")
+            
+            # Generate Documents
+            try:
+                case_details = {
+                    "description": description,
+                    "incident_date": datetime.now().strftime("%Y-%m-%d"),
+                    "incident_time": "[Time of incident]",
+                    "incident_place": "[Location of incident]"
+                }
+                
+                fir_draft = document_generator.generate_fir_draft(
+                    case_details=case_details,
+                    sections=final_sections,
+                    user_info=None  # User will fill in the form
+                )
+                
+                written_complaint = document_generator.generate_written_complaint(
+                    case_details=case_details,
+                    sections=final_sections,
+                    user_info=None
+                )
+                
+                evidence_checklist = document_generator.generate_evidence_checklist(
+                    sections=final_sections,
+                    case_type=request.caseType or classification.category
+                )
+                
+                documents = {
+                    "firDraft": fir_draft,
+                    "writtenComplaint": written_complaint,
+                    "evidenceChecklist": evidence_checklist
+                }
+                logger.info(f"   ✅ Documents generated")
+            except Exception as e:
+                logger.error(f"   ❌ Document generation failed: {e}")
+        else:
+            logger.info(f"\n⚠️ Premium features not available (Guest user)")
+        
         response = AnalyzeCaseResponse(
             sections=response_sections,
             severity=determine_severity(final_sections),
@@ -432,12 +499,15 @@ async def analyze_case(request: AnalyzeCaseRequest):
             bailProbability=bail_probability,
             overallConfidence=overall_confidence_int,
             summary=generate_summary(description, final_sections, classification),
-            nextSteps=generate_next_steps(final_sections, classification)
+            nextSteps=generate_next_steps(final_sections, classification),
+            actionPlan=action_plan,
+            documents=documents
         )
         
         logger.info(f"✅ Response ready with {len(response.sections)} sections")
         logger.info(f"   Overall confidence: {response.overallConfidence}%")
         logger.info(f"   Bail status: {response.bail}")
+        logger.info(f"   Premium features: {'✅ Included' if action_plan else '❌ Not available'}")
         
         return response
         
@@ -467,5 +537,7 @@ async def analyze_case(request: AnalyzeCaseRequest):
             bailProbability=0,
             overallConfidence=0,
             summary="Analysis failed. Please consult a legal professional.",
-            nextSteps=["Contact a lawyer", "Try again", "Gather evidence"]
+            nextSteps=["Contact a lawyer", "Try again", "Gather evidence"],
+            actionPlan=None,
+            documents=None
         )

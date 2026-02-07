@@ -1,0 +1,28 @@
+# LegalAI Robots.txt
+# https://legalai.app
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: *
+Allow: /
+
+# Disallow admin/private areas
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_/
+
+# Sitemap location
+Sitemap: https://legalai.app/sitemap.xml
+
+# Crawl delay for politeness
+Crawl-delay: 1

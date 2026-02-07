@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LegalAI - Know Your Legal Rights Instantly | AI-Powered Legal Analysis</title>
+    <meta name="description" content="Understand complex legal situations with AI. Get instant analysis of applicable laws, your rights, and recommended next steps. Connect with verified lawyers." />
+    <meta name="keywords" content="legal AI, crime analyzer, IPC sections, find lawyers, legal rights, Indian law, legal assistance" />
+    <meta name="author" content="LegalAI" />
+    <link rel="canonical" href="https://legalai.app" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="LegalAI - Know Your Legal Rights Instantly" />
+    <meta property="og:description" content="AI-powered legal analysis platform. Understand your rights and connect with expert lawyers." />
+    <meta property="og:type" content="website" />
+  
+    <meta property="og:url" content="https://legalai.app" />
+    <meta property="og:site_name" content="LegalAI" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@LegalAI" />
+    <meta name="theme-color" content="#0A0E27" />
+
+    <!-- Security Headers (as meta tags) -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <!-- Preconnect to important origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" as="style" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+
+    <!-- DNS Prefetch for external resources -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+    <!-- Critical CSS (inline for fastest FCP) -->
+    <style>
+      /* Critical above-fold styles */
+      *{box-sizing:border-box;margin:0;padding:0}
+      html{scroll-behavior:smooth}
+      body{font-family:Inter,system-ui,sans-serif;background:#0a0e27;color:#fff;min-height:100vh}
+      #root{min-height:100vh}
+      /* Loading skeleton */
+      .initial-loader{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0a0e27}
+      .initial-loader::after{content:'';width:40px;height:40px;border:3px solid rgba(0,217,255,0.2);border-top-color:#00d9ff;border-radius:50%;animation:spin 1s linear infinite}
+      @keyframes spin{to{transform:rotate(360deg)}}
+    </style>
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "LegalAI",
+      "description": "AI-powered legal analysis platform",
+      "url": "https://legalai.app",
+      "applicationCategory": "LegalService",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "LegalAI"
+      }
+    }
+    </script>
+  </head>
+
+  <body>
+    <!-- Initial loading state -->
+    <div id="root">
+      <div class="initial-loader" aria-label="Loading application"></div>
+    </div>
+    
+    <!-- Main application -->
+    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Feature detection & polyfills -->
+    <script>
+      // Check for critical feature support
+      if (!window.IntersectionObserver) {
+        document.write('<script src="https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver"><\/script>');
+      }
+    </script>
+  </body>
+</html>

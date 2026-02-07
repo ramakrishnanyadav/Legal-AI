@@ -17,7 +17,8 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://legal-ai-chi-liart.vercel.app",  # ← Your Vercel frontend
+        "https://legal-ai-chi-liart.vercel.app", 
+        "https://legal-ai-fbtp.vercel.app", # ← Your Vercel frontend
         "http://localhost:8080",
         "http://localhost:5173",
         "http://localhost:3000",

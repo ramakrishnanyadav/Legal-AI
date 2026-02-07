@@ -1,4 +1,4 @@
-// API Configuration
+// API Configuration - ✅ FIXED URL
 const API_BASE = import.meta.env.VITE_API_URL || 'https://legal-ai-roc4.onrender.com';
 
 // Type Definitions matching your CrimeAnalyzer

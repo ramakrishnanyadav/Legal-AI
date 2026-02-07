@@ -46,6 +46,10 @@ export interface ApiError {
 // API Functions
 export async function analyzeCase(data: AnalyzeCaseRequest): Promise<AnalyzeCaseResponse> {
   try {
+    // ✨ Get user auth state from Firebase
+    const { auth } = await import('./firebase');
+    const user = auth.currentUser;
+    
     const response = await fetch(`${API_BASE}/api/analyze-case`, {
       method: 'POST',
       headers: {
@@ -55,6 +59,9 @@ export async function analyzeCase(data: AnalyzeCaseRequest): Promise<AnalyzeCase
         description: data.description,
         role: data.role || 'victim',
         urgency: data.urgency || false,
+        // ✨ ADDED: Send auth data for premium features
+        user_id: user?.uid || null,
+        is_authenticated: !!user,
       }),
     });
 

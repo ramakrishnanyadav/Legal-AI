@@ -162,66 +162,73 @@ If FIR is not registered, you can:
         incident_time: str,
         incident_place: str
     ) -> str:
-        """Generate FIR in Hindi"""
+        """Generate FIR in Hindi - UTF-8 encoded"""
         
         sections_text = ", ".join([s.code for s in sections]) if sections else "[लागू धाराएं]"
         
-        hindi_fir = f"""
-प्रथम सूचना रिपोर्ट (FIR)
-धारा 154 CrPC के अंतर्गत
+        # Use raw string to preserve Devanagari characters
+        hindi_fir = """प्रथम सूचना रिपोर्ट (FIR)
+(धारा 154 सी.आर.पी.सी. के अंतर्गत)
 
 सेवा में,
-थाना प्रभारी (SHO)
-[पुलिस थाना का नाम]
-[पता]
+थाना प्रभारी: __________________
+थाना: __________________
 
-दिनांक: {datetime.now().strftime("%d/%m/%Y")}
+दिनांक: {date}
 
 विषय: शिकायत पंजीकरण हेतु प्रार्थना पत्र
 
 महोदय/महोदया,
 
-शिकायतकर्ता का विवरण:
-नाम: {user_info['name']}
-पिता/पति का नाम: {user_info['father_name']}
-आयु: {user_info['age']}
-पता: {user_info['address']}
-मोबाइल: {user_info['phone']}
-ईमेल: {user_info['email']}
+शिकायतकर्ता का विवरण
 
-घटना का विवरण:
-घटना की तिथि: {incident_date}
-घटना का समय: {incident_time}
-घटना स्थल: {incident_place}
+नाम: {name}
+पिता/पति का नाम: {father_name}
+आयु: {age}
+पता: {address}
+मोबाइल: {phone}
+ईमेल: {email}
 
-तथ्यों का विवरण:
+घटना का विवरण
+
+तिथि: {incident_date}
+समय: {incident_time}
+स्थान: {incident_place}
+
+घटना की जानकारी
 
 {description}
 
-लागू कानूनी धाराएं:
-{sections_text}
+लागू धाराएं (कानूनी प्रावधान)
 
-प्रार्थना:
-उपरोक्त तथ्यों के आधार पर, मैं आपसे निवेदन करता/करती हूं कि:
-1. उपरोक्त धाराओं के अंतर्गत FIR दर्ज की जाए
-2. गहन जांच की जाए
-3. आरोपी के खिलाफ उचित कानूनी कार्यवाही की जाए
-4. मुझे FIR की प्रति उपलब्ध कराई जाए
+आई.पी.सी. धाराएं: {sections}
 
-मैं घोषणा करता/करती हूं कि उपरोक्त जानकारी मेरी जानकारी के अनुसार सत्य है।
+प्रार्थना
 
-भवदीय,
+उपरोक्त तथ्यों के आधार पर, मैं आपसे निवेदन करता/करती हूं कि मेरी शिकायत दर्ज की जाए और उचित कानूनी कार्यवाही की जाए।
 
 _______________________
-[हस्ताक्षर]
-{user_info['name']}
-दिनांक: {datetime.now().strftime("%d/%m/%Y")}
+शिकायतकर्ता के हस्ताक्षर
 
-संलग्नक:
-1. पहचान पत्र की प्रति
-2. पते का प्रमाण
-3. [सहायक दस्तावेज]
-"""
+_______________________
+शिकायतकर्ता का नाम
+
+दिनांक: {date}
+""".format(
+            date=datetime.now().strftime("%d/%m/%Y"),
+            name=user_info['name'],
+            father_name=user_info['father_name'],
+            age=user_info['age'],
+            address=user_info['address'],
+            phone=user_info['phone'],
+            email=user_info['email'],
+            incident_date=incident_date,
+            incident_time=incident_time,
+            incident_place=incident_place,
+            description=description,
+            sections=sections_text
+        )
+        
         return hindi_fir.strip()
     
     def _generate_marathi_fir(
@@ -233,7 +240,7 @@ _______________________
         incident_time: str,
         incident_place: str
     ) -> str:
-        """Generate FIR in Marathi"""
+        """Generate FIR in Marathi - UTF-8 encoded"""
         
         sections_text = ", ".join([s.code for s in sections]) if sections else "[लागू कलम]"
         

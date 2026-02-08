@@ -83,7 +83,12 @@ const Lawyers = () => {
   // Form state
   const [selectedCase, setSelectedCase] = useState('');
   const [preferredDate, setPreferredDate] = useState('');
+  const [preferredTime, setPreferredTime] = useState('');
+  const [consultationType, setConsultationType] = useState<'in-person' | 'video' | 'phone'>('video');
+  const [urgencyLevel, setUrgencyLevel] = useState<'low' | 'medium' | 'high' | 'urgent'>('medium');
+  const [caseSubject, setCaseSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [specificQuestions, setSpecificQuestions] = useState('');
   const [requestSent, setRequestSent] = useState(false);
 
   useEffect(() => {
@@ -140,7 +145,7 @@ const Lawyers = () => {
   const handleSubmitRequest = async () => {
     if (!selectedLawyer || !user) return;
 
-    if (!preferredDate || !message.trim()) {
+    if (!preferredDate || !preferredTime || !caseSubject.trim() || !message.trim()) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -156,9 +161,20 @@ const Lawyers = () => {
         userEmail: user.email || '',
         lawyerName: selectedLawyer.name,
         lawyerBarNumber: selectedLawyer.barNumber,
+        
+        // Case Information
         caseType: selectedCaseData?.caseType || 'General Consultation',
-        preferredDate,
+        caseSubject,
         message,
+        specificQuestions: specificQuestions || null,
+        
+        // Consultation Details
+        preferredDate,
+        preferredTime,
+        consultationType,
+        urgencyLevel,
+        
+        // Metadata
         status: 'pending',
         createdAt: Timestamp.now(),
       };
@@ -509,6 +525,7 @@ const Lawyers = () => {
                   </div>
 
                   <div className="space-y-4">
+                    {/* Related Case Selection */}
                     {userCases.length > 0 && (
                       <div>
                         <label className="block text-sm font-medium mb-2">
@@ -529,31 +546,145 @@ const Lawyers = () => {
                       </div>
                     )}
 
+                    {/* Case Subject */}
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Preferred Date *
+                        Case Subject / Topic *
                       </label>
                       <input
-                        type="date"
-                        value={preferredDate}
-                        onChange={(e) => setPreferredDate(e.target.value)}
-                        min={new Date().toISOString().split('T')[0]}
+                        type="text"
+                        value={caseSubject}
+                        onChange={(e) => setCaseSubject(e.target.value)}
+                        placeholder="e.g., Property Dispute, Cybercrime Complaint, Contract Review"
                         className="w-full px-4 py-3 rounded-xl glass border border-white/10 focus:border-primary/50 focus:outline-none"
                         required
                       />
                     </div>
 
+                    {/* Urgency Level */}
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Message *
+                        Urgency Level *
+                      </label>
+                      <select
+                        value={urgencyLevel}
+                        onChange={(e) => setUrgencyLevel(e.target.value as any)}
+                        className="w-full px-4 py-3 rounded-xl glass border border-white/10 focus:border-primary/50 focus:outline-none [&>option]:bg-gray-900 [&>option]:text-white"
+                      >
+                        <option value="low" className="bg-gray-900 text-white">Low - Can wait 1-2 weeks</option>
+                        <option value="medium" className="bg-gray-900 text-white">Medium - Within this week</option>
+                        <option value="high" className="bg-gray-900 text-white">High - Within 2-3 days</option>
+                        <option value="urgent" className="bg-gray-900 text-white">Urgent - ASAP (24 hours)</option>
+                      </select>
+                    </div>
+
+                    {/* Consultation Type */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Consultation Mode *
+                      </label>
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setConsultationType('video')}
+                          className={`px-4 py-3 rounded-xl border transition-all ${
+                            consultationType === 'video'
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-white/10 bg-white/5 hover:bg-white/10'
+                          }`}
+                        >
+                          📹 Video
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setConsultationType('phone')}
+                          className={`px-4 py-3 rounded-xl border transition-all ${
+                            consultationType === 'phone'
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-white/10 bg-white/5 hover:bg-white/10'
+                          }`}
+                        >
+                          📞 Phone
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setConsultationType('in-person')}
+                          className={`px-4 py-3 rounded-xl border transition-all ${
+                            consultationType === 'in-person'
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-white/10 bg-white/5 hover:bg-white/10'
+                          }`}
+                        >
+                          🏢 In-Person
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Preferred Date & Time */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Preferred Date *
+                        </label>
+                        <input
+                          type="date"
+                          value={preferredDate}
+                          onChange={(e) => setPreferredDate(e.target.value)}
+                          min={new Date().toISOString().split('T')[0]}
+                          className="w-full px-4 py-3 rounded-xl glass border border-white/10 focus:border-primary/50 focus:outline-none"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Preferred Time *
+                        </label>
+                        <select
+                          value={preferredTime}
+                          onChange={(e) => setPreferredTime(e.target.value)}
+                          className="w-full px-4 py-3 rounded-xl glass border border-white/10 focus:border-primary/50 focus:outline-none [&>option]:bg-gray-900 [&>option]:text-white"
+                          required
+                        >
+                          <option value="" className="bg-gray-900 text-white">Select time</option>
+                          <option value="09:00-10:00" className="bg-gray-900 text-white">09:00 - 10:00 AM</option>
+                          <option value="10:00-11:00" className="bg-gray-900 text-white">10:00 - 11:00 AM</option>
+                          <option value="11:00-12:00" className="bg-gray-900 text-white">11:00 - 12:00 PM</option>
+                          <option value="12:00-13:00" className="bg-gray-900 text-white">12:00 - 01:00 PM</option>
+                          <option value="14:00-15:00" className="bg-gray-900 text-white">02:00 - 03:00 PM</option>
+                          <option value="15:00-16:00" className="bg-gray-900 text-white">03:00 - 04:00 PM</option>
+                          <option value="16:00-17:00" className="bg-gray-900 text-white">04:00 - 05:00 PM</option>
+                          <option value="17:00-18:00" className="bg-gray-900 text-white">05:00 - 06:00 PM</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Case Description */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Case Description *
                       </label>
                       <textarea
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Briefly describe your legal matter..."
+                        placeholder="Provide detailed information about your legal matter, including key facts, dates, and parties involved..."
                         rows={4}
                         className="w-full px-4 py-3 rounded-xl glass border border-white/10 focus:border-primary/50 focus:outline-none resize-none"
                         required
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Be specific - include dates, locations, and relevant details</p>
+                    </div>
+
+                    {/* Specific Questions */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Specific Questions (Optional)
+                      </label>
+                      <textarea
+                        value={specificQuestions}
+                        onChange={(e) => setSpecificQuestions(e.target.value)}
+                        placeholder="List any specific legal questions you want answered during the consultation..."
+                        rows={3}
+                        className="w-full px-4 py-3 rounded-xl glass border border-white/10 focus:border-primary/50 focus:outline-none resize-none"
                       />
                     </div>
 

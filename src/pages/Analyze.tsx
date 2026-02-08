@@ -91,9 +91,18 @@ const Analyze = () => {
       // Save to Firestore
       await saveCase(response);
 
-      // ⚠️ TEMPORARY: Show results on same page until vercel.json deploys
-      // Once vercel.json fixes routing, we can navigate to AnalyzeResults for premium features
-      setTimeout(() => setStage('results'), 500);
+      // ✅ Navigate to AnalyzeResults page with premium features
+      setTimeout(() => {
+        navigate('/analyze-results', {
+          state: {
+            results: response,
+            caseType: caseType,
+            isUrgent: isUrgent,
+            description: description,
+            caseId: currentCaseId,
+          }
+        });
+      }, 500);
     } catch (error) {
       clearInterval(progressInterval);
       toast.error('Analysis failed. Please try again.');

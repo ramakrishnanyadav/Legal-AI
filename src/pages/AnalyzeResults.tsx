@@ -21,6 +21,7 @@ import {
 import ActionPlanCard from '@/components/ActionPlanCard';
 import DocumentViewer from '@/components/DocumentViewer';
 import AnimatedButton from '@/components/AnimatedButton';
+import { PremiumFeatureCards } from '@/components/PremiumFeatureCards';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { matchLawyers, getMatchPercentage, type Lawyer, type MatchedLawyer } from '@/lib/lawyerMatcher';
@@ -599,7 +600,10 @@ const AnalyzeResults = () => {
         )}
 
         {activeTab === 'action-plan' && results.actionPlan && (
-          <ActionPlanCard actionPlan={results.actionPlan} />
+          <>
+            <PremiumFeatureCards actionPlan={results.actionPlan} />
+            <ActionPlanCard actionPlan={results.actionPlan} />
+          </>
         )}
 
         {activeTab === 'documents' && (

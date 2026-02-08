@@ -55,6 +55,9 @@ const DocumentViewer = ({ documents }: DocumentViewerProps) => {
   const [expandedDoc, setExpandedDoc] = useState<string>('fir');
   const [copiedDoc, setCopiedDoc] = useState<string>('');
   const [language, setLanguage] = useState<'english' | 'hindi' | 'marathi'>('english');
+  
+  // Temporarily disable Hindi/Marathi until backend encoding is fixed
+  const availableLanguages = ['english']; // 'hindi', 'marathi' will be enabled after backend redeploy
 
   // Γ£à Editable form state for Written Complaint
   const [complaintForm, setComplaintForm] = useState({
@@ -274,28 +277,21 @@ const DocumentViewer = ({ documents }: DocumentViewerProps) => {
                     >
                       English
                     </button>
+                    {/* Temporarily disabled until backend encoding is fixed */}
                     <button
-                      onClick={() => setLanguage('hindi')}
-                      className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
-                        language === 'hindi'
-                          ? 'bg-primary text-white'
-                          : 'bg-white/5 hover:bg-white/10'
-                      }`}
+                      disabled
+                      className="px-4 py-2 rounded-lg font-semibold text-sm bg-white/5 text-muted-foreground/50 cursor-not-allowed"
+                      title="Hindi translation temporarily unavailable - backend update needed"
                     >
-                      हिंदी (Hindi)
+                      हिंदी (Coming Soon)
                     </button>
-                    {documents.firDraft.marathi && (
-                      <button
-                        onClick={() => setLanguage('marathi')}
-                        className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
-                          language === 'marathi'
-                            ? 'bg-primary text-white'
-                            : 'bg-white/5 hover:bg-white/10'
-                        }`}
-                      >
-                        मराठी (Marathi)
-                      </button>
-                    )}
+                    <button
+                      disabled
+                      className="px-4 py-2 rounded-lg font-semibold text-sm bg-white/5 text-muted-foreground/50 cursor-not-allowed"
+                      title="Marathi translation temporarily unavailable - backend update needed"
+                    >
+                      मराठी (Coming Soon)
+                    </button>
                   </div>
                 </div>
 

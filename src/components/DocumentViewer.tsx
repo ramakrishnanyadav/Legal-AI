@@ -197,7 +197,7 @@ const DocumentViewer = ({ documents }: DocumentViewerProps) => {
                 <ul className="space-y-1 text-sm text-muted-foreground">
                   {safeInstructions.map((instruction, index) => (
                     <li key={index} className="flex items-start gap-2">
-                      <span className="text-blue-400">ΓÇó</span>
+                      <span className="text-blue-400">•</span>
                       <span>{instruction}</span>
                     </li>
                   ))}

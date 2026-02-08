@@ -18,7 +18,8 @@ import {
   Briefcase,
   Hospital,
   Target,
-  Info
+  Info,
+  Lightbulb
 } from 'lucide-react';
 
 const iconMap: Record<string, any> = {
@@ -479,7 +480,7 @@ const ActionPlanCard = ({ actionPlan }: ActionPlanCardProps) => {
 
                   {/* Strengths */}
                   <div className="mb-4">
-                    <p className="text-sm font-semibold text-green-400 mb-2">Γ£à Strengths</p>
+                    <p className="text-sm font-semibold text-green-400 mb-2">✓ Strengths</p>
                     <ul className="space-y-2">
                       {actionPlan.riskAssessment.strengths.map((strength, index) => (
                         <li key={index} className="text-sm flex items-start gap-2">
@@ -492,7 +493,7 @@ const ActionPlanCard = ({ actionPlan }: ActionPlanCardProps) => {
 
                   {/* Risks */}
                   <div className="mb-4">
-                    <p className="text-sm font-semibold text-yellow-400 mb-2">ΓÜá∩╕Å Risks</p>
+                    <p className="text-sm font-semibold text-yellow-400 mb-2">⚠ Risks</p>
                     <ul className="space-y-2">
                       {actionPlan.riskAssessment.risks.map((risk, index) => (
                         <li key={index} className="text-sm flex items-start gap-2">
@@ -669,6 +670,90 @@ const ActionPlanCard = ({ actionPlan }: ActionPlanCardProps) => {
         </AnimatePresence>
       </motion.div>
 
+      {/* Victory Prediction - Enhanced */}
+      {victoryPrediction && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass rounded-2xl p-6 mb-6"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20">
+              <Target className="w-6 h-6 text-blue-400" />
+            </div>
+            <h3 className="text-xl font-bold">Case Victory Analysis</h3>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
+            {/* Victory Percentage Card */}
+            <div className="text-center p-8 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-2 border-green-500/30">
+              <div className="text-7xl font-black text-green-400 mb-3">
+                {victoryPrediction.victoryChance}%
+              </div>
+              <div className="text-xl font-bold text-green-300 mb-2">
+                {victoryPrediction.verdict}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Based on statutory match and case information
+              </p>
+            </div>
+
+            {/* Strengths & Risks Column */}
+            <div className="space-y-4">
+              {/* Strengths Section */}
+              <div className="p-5 rounded-xl bg-green-500/5 border border-green-500/20">
+                <div className="flex items-center gap-2 mb-3">
+                  <CheckCircle2 className="w-5 h-5 text-green-400" />
+                  <p className="font-semibold text-green-400">Case Strengths</p>
+                </div>
+                <ul className="space-y-2">
+                  {victoryPrediction.strengths?.slice(0, 3).map((strength, index) => (
+                    <li key={index} className="text-sm flex items-start gap-2 text-muted-foreground">
+                      <span className="text-green-400 mt-0.5">•</span>
+                      <span>{strength}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Risks Section */}
+              <div className="p-5 rounded-xl bg-yellow-500/5 border border-yellow-500/20">
+                <div className="flex items-center gap-2 mb-3">
+                  <AlertTriangle className="w-5 h-5 text-yellow-400" />
+                  <p className="font-semibold text-yellow-400">Potential Challenges</p>
+                </div>
+                <ul className="space-y-2">
+                  {victoryPrediction.risks?.slice(0, 3).map((risk, index) => (
+                    <li key={index} className="text-sm flex items-start gap-2 text-muted-foreground">
+                      <span className="text-yellow-400 mt-0.5">•</span>
+                      <span>{risk}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Improvement Tips */}
+          {victoryPrediction.improvementTips && victoryPrediction.improvementTips.length > 0 && (
+            <div className="p-5 rounded-xl bg-blue-500/5 border border-blue-500/20">
+              <div className="flex items-center gap-2 mb-4">
+                <Lightbulb className="w-5 h-5 text-blue-400" />
+                <p className="font-semibold text-blue-400">How to Strengthen Your Case</p>
+              </div>
+              <div className="grid md:grid-cols-2 gap-3">
+                {victoryPrediction.improvementTips.map((tip, index) => (
+                  <div key={index} className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-0.5 text-sm">•</span>
+                    <span className="text-sm text-muted-foreground">{tip}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </motion.div>
+      )}
+
       {/* Alternative Options */}
       {actionPlan.alternativeOptions.length > 0 && (
         <motion.div
@@ -713,18 +798,18 @@ const ActionPlanCard = ({ actionPlan }: ActionPlanCardProps) => {
 
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
-                          <p className="text-xs font-semibold text-green-400 mb-2">Γ£ô Pros</p>
+                          <p className="text-xs font-semibold text-green-400 mb-2">✓ Pros</p>
                           <ul className="space-y-1">
                             {option.pros.map((pro, i) => (
-                              <li key={i} className="text-xs text-muted-foreground">ΓÇó {pro}</li>
+                              <li key={i} className="text-xs text-muted-foreground">• {pro}</li>
                             ))}
                           </ul>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-red-400 mb-2">Γ£ù Cons</p>
+                          <p className="text-xs font-semibold text-red-400 mb-2">✗ Cons</p>
                           <ul className="space-y-1">
                             {option.cons.map((con, i) => (
-                              <li key={i} className="text-xs text-muted-foreground">ΓÇó {con}</li>
+                              <li key={i} className="text-xs text-muted-foreground">• {con}</li>
                             ))}
                           </ul>
                         </div>

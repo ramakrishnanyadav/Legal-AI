@@ -690,7 +690,7 @@ const ActionPlanCard = ({ actionPlan }: ActionPlanCardProps) => {
             </div>
             
             {/* Duration */}
-            {durationEstimate && (
+            {durationEstimate && durationEstimate.averageMonths !== undefined && (
               <div className="p-6 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 text-center">
                 <p className="text-sm text-muted-foreground mb-2">Duration</p>
                 <div className="text-5xl font-bold text-purple-400 mb-2">
@@ -701,7 +701,7 @@ const ActionPlanCard = ({ actionPlan }: ActionPlanCardProps) => {
             )}
             
             {/* Costs */}
-            {detailedCosts && (
+            {detailedCosts && detailedCosts.averageCost !== undefined && (
               <div className="p-6 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 text-center">
                 <p className="text-sm text-muted-foreground mb-2">Cost</p>
                 <div className="text-4xl font-bold text-emerald-400 mb-2">

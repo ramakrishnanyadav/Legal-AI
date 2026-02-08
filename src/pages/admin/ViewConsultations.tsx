@@ -372,6 +372,7 @@ const ViewConsultations = () => {
                     </p>
                   </div>
                 </div>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 rounded-lg bg-white/5">
                   <div>
@@ -429,6 +430,7 @@ const ViewConsultations = () => {
             ))}
           </div>
         )}
+        </div>
       </main>
 
       {/* ✅ VIEW DETAILS MODAL */}
@@ -574,8 +576,6 @@ const ViewConsultations = () => {
           </motion.div>
         )}
       </AnimatePresence>
-        </div>
-      </main>
     </div>
   );
 };

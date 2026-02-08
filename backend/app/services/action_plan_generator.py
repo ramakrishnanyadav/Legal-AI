@@ -342,7 +342,61 @@ class ActionPlanGenerator:
         section: LegalSection,
         is_non_bailable: bool
     ) -> Dict:
-        """Generate cost breakdown"""
+        """Generate DYNAMIC cost breakdown based on case type"""
+        
+        # 🔥 DYNAMIC COST CALCULATION
+        # Base multipliers based on offense type
+        if is_non_bailable:
+            complexity_multiplier = 2.0  # Non-bailable cases are more expensive
+            consultation_min = 5000
+            consultation_max = 15000
+            retainer_min = 25000
+            retainer_max = 75000
+            trial_min = 100000
+            trial_max = 500000
+        else:
+            complexity_multiplier = 1.0
+            consultation_min = 2000
+            consultation_max = 10000
+            retainer_min = 15000
+            retainer_max = 50000
+            trial_min = 50000
+            trial_max = 300000
+        
+        # Adjust for case type
+        is_cyber = "IT Act" in section.code
+        is_violent = any(code in section.code for code in ["323", "325", "326", "354", "376"])
+        is_financial = any(code in section.code for code in ["420", "406", "415"])
+        
+        if is_cyber:
+            # Cyber cases need technical experts
+            retainer_min = int(retainer_min * 1.3)
+            retainer_max = int(retainer_max * 1.3)
+            trial_min = int(trial_min * 1.2)
+            trial_max = int(trial_max * 1.2)
+        
+        if is_violent:
+            # Violent cases need medical experts
+            trial_min = int(trial_min * 1.15)
+            trial_max = int(trial_max * 1.15)
+        
+        if is_financial:
+            # Financial cases need forensic auditors
+            trial_min = int(trial_min * 1.25)
+            trial_max = int(trial_max * 1.25)
+        
+        # Calculate totals
+        misc_min = 5000
+        misc_max = 20000
+        
+        min_total = consultation_min + retainer_min + misc_min
+        max_total = consultation_max + retainer_max + trial_max + misc_max
+        avg_total = (min_total + max_total) // 2
+        
+        if is_non_bailable:
+            min_total += 10000  # Bail costs
+            max_total += 50000
+            avg_total += 25000
         
         costs = {
             "breakdown": [
@@ -353,29 +407,29 @@ class ActionPlanGenerator:
                 },
                 {
                     "stage": "Initial Legal Consultation",
-                    "cost": "₹2,000 - ₹10,000",
+                    "cost": f"₹{consultation_min:,} - ₹{consultation_max:,}",
                     "description": "First meeting with lawyer"
                 },
                 {
                     "stage": "Lawyer Retainer (if hiring)",
-                    "cost": "₹15,000 - ₹50,000",
+                    "cost": f"₹{retainer_min:,} - ₹{retainer_max:,}",
                     "description": "For representation during investigation"
                 },
                 {
                     "stage": "Court Proceedings (if trial)",
-                    "cost": "₹50,000 - ₹3,00,000",
+                    "cost": f"₹{trial_min:,} - ₹{trial_max:,}",
                     "description": "Full trial representation"
                 },
                 {
                     "stage": "Miscellaneous",
-                    "cost": "₹5,000 - ₹20,000",
+                    "cost": f"₹{misc_min:,} - ₹{misc_max:,}",
                     "description": "Documents, travel, photocopies, notary"
                 }
             ],
-            "minimumEstimate": "₹22,000",
-            "maximumEstimate": "₹3,80,000",
-            "averageEstimate": "₹1,00,000",
-            "note": "Costs vary based on lawyer experience, city, case complexity"
+            "minimumEstimate": f"₹{min_total:,}",
+            "maximumEstimate": f"₹{max_total:,}",
+            "averageEstimate": f"₹{avg_total:,}",
+            "note": f"{'Non-bailable' if is_non_bailable else 'Bailable'} {section.code} - Costs vary by city and lawyer experience"
         }
         
         if is_non_bailable:
@@ -824,14 +878,79 @@ class ActionPlanGenerator:
         duration_estimate: Dict
     ) -> Dict:
         """
-        Generate comprehensive cost breakdown with estimates
+        Generate comprehensive DYNAMIC cost breakdown based on duration and case type
         """
+        # 🔥 EXTRACT DURATION (in months)
+        total_duration = duration_estimate.get("totalDuration", {})
+        avg_duration_str = total_duration.get("average", "23 months")
+        
+        # Parse duration from string like "23 months (1.9 years)"
+        try:
+            avg_months = int(avg_duration_str.split()[0])
+        except:
+            avg_months = 23  # Default fallback
+        
+        # 🔥 BASE COSTS
+        base_consultation = 5000 if is_non_bailable else 2000
+        base_retainer = 30000 if is_non_bailable else 20000
+        
+        # 🔥 HEARING COSTS (depends on duration)
+        # Estimate: 1 hearing per month on average
+        estimated_hearings = avg_months
+        cost_per_hearing_min = 2000
+        cost_per_hearing_max = 10000
+        
+        hearing_cost_min = estimated_hearings * cost_per_hearing_min
+        hearing_cost_max = estimated_hearings * cost_per_hearing_max
+        
+        # 🔥 CASE TYPE ADJUSTMENTS
+        is_cyber = "IT Act" in section.code
+        is_violent = any(code in section.code for code in ["323", "325", "326", "354", "376"])
+        is_financial = any(code in section.code for code in ["420", "406", "415"])
+        
+        # Forensic/Expert costs
+        forensic_min = 0
+        forensic_max = 0
+        
+        if is_cyber:
+            forensic_min = 15000  # Digital forensics required
+            forensic_max = 75000
+            base_retainer = int(base_retainer * 1.4)
+        
+        if is_violent:
+            forensic_min = 10000  # Medical experts
+            forensic_max = 50000
+        
+        if is_financial:
+            forensic_min = 20000  # Forensic auditors
+            forensic_max = 100000
+        
+        # 🔥 CALCULATE TOTALS
+        min_cost = (
+            base_consultation +
+            base_retainer +
+            hearing_cost_min +
+            5000 +  # Misc
+            forensic_min
+        )
+        
+        max_cost = (
+            base_consultation * 3 +
+            base_retainer * 2 +
+            hearing_cost_max +
+            20000 +  # Misc
+            forensic_max +
+            (50000 if is_non_bailable else 0)  # Bail
+        )
+        
+        avg_cost = (min_cost + max_cost) // 2
+        
         return {
             "summary": {
-                "minimumCost": "₹22,000",
-                "averageCost": "₹1,50,000",
-                "maximumCost": "₹5,00,000",
-                "note": "Actual costs vary by city, lawyer experience, and case complexity"
+                "minimumCost": f"₹{min_cost:,}",
+                "averageCost": f"₹{avg_cost:,}",
+                "maximumCost": f"₹{max_cost:,}",
+                "note": f"Based on {avg_months} months duration for {section.code} - {'Non-bailable' if is_non_bailable else 'Bailable'} offense"
             },
             "phaseWiseCosts": [
                 {
@@ -869,13 +988,13 @@ class ActionPlanGenerator:
                 {
                     "phase": "Court Proceedings",
                     "items": [
-                        {"item": "Lawyer court appearance fees", "cost": "₹2,000-10,000 per hearing", "mandatory": True},
-                        {"item": "Total hearings (estimated)", "cost": "20-40 hearings", "mandatory": True},
+                        {"item": "Lawyer court appearance fees", "cost": f"₹{cost_per_hearing_min:,}-{cost_per_hearing_max:,} per hearing", "mandatory": True},
+                        {"item": "Total hearings (estimated)", "cost": f"{estimated_hearings} hearings over {avg_months} months", "mandatory": True},
                         {"item": "Court fees & stamps", "cost": "₹5,000-15,000", "mandatory": True},
                         {"item": "Witness expenses", "cost": "₹5,000-20,000", "mandatory": False}
                     ],
-                    "total": "₹50,000-4,00,000",
-                    "timeline": "Months 6-24"
+                    "total": f"₹{hearing_cost_min:,}-{hearing_cost_max:,}",
+                    "timeline": f"Months 6-{avg_months}"
                 }
             ],
             "additionalCosts": [

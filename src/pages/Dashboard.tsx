@@ -330,10 +330,22 @@ const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Welcome back, <span className="gradient-text">{user?.email?.split('@')[0]}</span>
-          </h1>
-          <p className="text-muted-foreground">Manage your legal cases and consultations</p>
+          <div className="flex items-center gap-3 mb-3">
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: 'spring', delay: 0.2 }}
+              className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center"
+            >
+              <Scale className="w-6 h-6 text-white" />
+            </motion.div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold">
+                Welcome back, <span className="gradient-text">{user?.email?.split('@')[0]}</span>
+              </h1>
+              <p className="text-muted-foreground">Manage your legal cases and consultations</p>
+            </div>
+          </div>
         </motion.div>
 
         {/* Stats Grid */}
@@ -343,16 +355,21 @@ const Dashboard = () => {
               key={stat.label}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="glass rounded-2xl p-6 border border-white/10"
+              transition={{ delay: 0.3 + index * 0.1 }}
+              whileHover={{ scale: 1.02, y: -4 }}
+              className="glass rounded-2xl p-6 border border-white/10 hover:border-primary/30 transition-all cursor-pointer group"
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">{stat.label}</span>
-                <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center`}>
-                  <stat.icon className={`w-5 h-5 ${stat.color}`} />
-                </div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm text-muted-foreground font-medium uppercase tracking-wide">{stat.label}</span>
+                <motion.div 
+                  className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center border border-white/10`}
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                </motion.div>
               </div>
-              <p className="text-3xl font-bold">{stat.value}</p>
+              <p className="text-4xl font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">{stat.value}</p>
             </motion.div>
           ))}
         </div>
@@ -476,32 +493,64 @@ const Dashboard = () => {
 
                       {/* AI Analysis Summary */}
                       {caseItem.analysisResults && (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-                          <div className="text-center p-2 rounded-lg bg-white/5">
-                            <p className="text-xs text-muted-foreground">Confidence</p>
-                            <p className="text-sm font-semibold text-primary">
-                              {normalizeConfidence(caseItem.analysisResults.overallConfidence)}%
-                            </p>
+                        <>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                            <div className="text-center p-2 rounded-lg bg-white/5">
+                              <p className="text-xs text-muted-foreground">Confidence</p>
+                              <p className="text-sm font-semibold text-primary">
+                                {normalizeConfidence(caseItem.analysisResults.overallConfidence)}%
+                              </p>
+                            </div>
+                            <div className="text-center p-2 rounded-lg bg-white/5">
+                              <p className="text-xs text-muted-foreground">Primary Section</p>
+                              <p className="text-sm font-semibold">
+                                {caseItem.analysisResults.sections.find(s => s.isPrimary)?.code || 'N/A'}
+                              </p>
+                            </div>
+                            <div className="text-center p-2 rounded-lg bg-white/5">
+                              <p className="text-xs text-muted-foreground">Severity</p>
+                              <p className="text-sm font-semibold text-yellow-400">
+                                {caseItem.analysisResults.severity}
+                              </p>
+                            </div>
+                            <div className="text-center p-2 rounded-lg bg-white/5">
+                              <p className="text-xs text-muted-foreground">Bail</p>
+                              <p className="text-sm font-semibold text-green-400">
+                                {caseItem.analysisResults.bail}
+                              </p>
+                            </div>
                           </div>
-                          <div className="text-center p-2 rounded-lg bg-white/5">
-                            <p className="text-xs text-muted-foreground">Primary Section</p>
-                            <p className="text-sm font-semibold">
-                              {caseItem.analysisResults.sections.find(s => s.isPrimary)?.code || 'N/A'}
-                            </p>
-                          </div>
-                          <div className="text-center p-2 rounded-lg bg-white/5">
-                            <p className="text-xs text-muted-foreground">Severity</p>
-                            <p className="text-sm font-semibold text-yellow-400">
-                              {caseItem.analysisResults.severity}
-                            </p>
-                          </div>
-                          <div className="text-center p-2 rounded-lg bg-white/5">
-                            <p className="text-xs text-muted-foreground">Bail</p>
-                            <p className="text-sm font-semibold text-green-400">
-                              {caseItem.analysisResults.bail}
-                            </p>
-                          </div>
-                        </div>
+                          
+                          {/* Premium Features Preview */}
+                          {caseItem.analysisResults.actionPlan && (
+                            <div className="grid grid-cols-3 gap-2 mb-3 p-3 rounded-lg bg-gradient-to-r from-primary/10 to-purple/10 border border-primary/20">
+                              {caseItem.analysisResults.actionPlan.victoryPrediction && (
+                                <div className="text-center">
+                                  <p className="text-xs text-muted-foreground mb-1">Victory</p>
+                                  <p className="text-lg font-bold text-green-400">
+                                    {caseItem.analysisResults.actionPlan.victoryPrediction.victoryChance}%
+                                  </p>
+                                </div>
+                              )}
+                              {caseItem.analysisResults.actionPlan.durationEstimate && (
+                                <div className="text-center">
+                                  <p className="text-xs text-muted-foreground mb-1">Duration</p>
+                                  <p className="text-sm font-bold text-purple-400">
+                                    {caseItem.analysisResults.actionPlan.durationEstimate.totalDuration?.average || 'N/A'}
+                                  </p>
+                                </div>
+                              )}
+                              {caseItem.analysisResults.actionPlan.detailedCosts && (
+                                <div className="text-center">
+                                  <p className="text-xs text-muted-foreground mb-1">Est. Cost</p>
+                                  <p className="text-sm font-bold text-emerald-400">
+                                    {caseItem.analysisResults.actionPlan.detailedCosts.summary?.averageCost || 'N/A'}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </>
                       )}
 
                       {/* Footer */}

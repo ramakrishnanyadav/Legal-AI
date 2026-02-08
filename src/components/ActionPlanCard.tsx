@@ -111,7 +111,10 @@ interface ActionPlanCardProps {
 const ActionPlanCard = ({ actionPlan }: ActionPlanCardProps) => {
   const [expandedSection, setExpandedSection] = useState<string>('steps');
   const [checkedDocs, setCheckedDocs] = useState<Set<string>>(new Set());
-  const [showPremiumFeatures, setShowPremiumFeatures] = useState(false);
+  // ✨ Show premium features by default in local development
+  const [showPremiumFeatures, setShowPremiumFeatures] = useState(
+    import.meta.env.VITE_SHOW_PREMIUM_BY_DEFAULT === 'true' || import.meta.env.VITE_ENV === 'development'
+  );
 
   // ✨ Extract premium features
   const victoryPrediction = (actionPlan as any)?.victoryPrediction;
@@ -762,24 +765,24 @@ const ActionPlanCard = ({ actionPlan }: ActionPlanCardProps) => {
                 transition={{ delay: 0.2 }}
                 className="relative group"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all" />
-                <div className="relative glass rounded-2xl p-6 border-2 border-purple-500/30 hover:border-purple-400/50 transition-all">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all" />
+                <div className="relative glass rounded-2xl p-6 border-2 border-green-500/30 hover:border-green-500/50 transition-all">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="p-2 rounded-lg bg-purple-500/20">
-                      <Clock className="w-5 h-5 text-purple-400" />
+                    <div className="p-2 rounded-lg bg-green-500/20">
+                      <Clock className="w-5 h-5 text-green-400" />
                     </div>
-                    <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider">Timeline</span>
+                    <span className="text-xs font-semibold text-green-400 uppercase tracking-wider">Timeline</span>
                   </div>
                   <div className="text-center mb-4">
-                    <div className="text-6xl font-black text-purple-400 mb-2 leading-none">
+                    <div className="text-6xl font-black text-white drop-shadow-lg mb-2 leading-none">
                       {durationEstimate.averageMonths}
                     </div>
-                    <div className="text-lg font-semibold text-purple-300 mb-1">months</div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-lg font-semibold text-green-400 mb-1">months</div>
+                    <div className="text-xs text-gray-300">
                       {durationEstimate.minimumMonths}-{durationEstimate.maximumMonths} months range
                     </div>
                   </div>
-                  <div className="text-xs text-center text-muted-foreground">
+                  <div className="text-xs text-center text-gray-300">
                     Average case duration
                   </div>
                 </div>

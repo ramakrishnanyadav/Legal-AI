@@ -213,9 +213,9 @@ const Lawyers = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-y-auto">
       {/* Header */}
-      <header className="sticky top-0 z-50 glass border-b border-white/10">
+      <header className="sticky top-0 z-50 glass border-b border-white/10 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2">

@@ -58,6 +58,14 @@ const AnalyzeResults = () => {
   const location = useLocation();
   const results: AnalysisResults = location.state?.results;
 
+  // 🔍 DEBUG: Log what we received on this page
+  console.log('📄 AnalyzeResults Page Loaded:', {
+    hasResults: !!results,
+    hasActionPlan: !!results?.actionPlan,
+    hasDocuments: !!results?.documents,
+    resultsKeys: results ? Object.keys(results) : [],
+  });
+
   const [activeTab, setActiveTab] = useState<'overview' | 'action-plan' | 'documents'>('overview');
   const [recommendedLawyers, setRecommendedLawyers] = useState<MatchedLawyer[]>([]);
   const [loadingLawyers, setLoadingLawyers] = useState(true);

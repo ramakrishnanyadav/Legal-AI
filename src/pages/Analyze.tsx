@@ -81,10 +81,22 @@ const Analyze = () => {
       setProgress(100);
       setResults(response);
 
+      // 🔍 DEBUG: Log what we got from API
+      console.log('✅ Analysis Complete:', {
+        hasActionPlan: !!response.actionPlan,
+        hasDocuments: !!response.documents,
+        responseKeys: Object.keys(response),
+      });
+
       // Save to Firestore
       const savedCaseId = await saveCase(response);
 
       // ✨ FIXED: Navigate to AnalyzeResults page with full data including premium features
+      console.log('🚀 Navigating to /analyze-results with:', {
+        hasActionPlan: !!response.actionPlan,
+        hasDocuments: !!response.documents,
+      });
+      
       setTimeout(() => {
         navigate('/analyze-results', {
           state: {

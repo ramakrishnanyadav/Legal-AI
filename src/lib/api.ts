@@ -93,8 +93,24 @@ export async function analyzeCase(data: AnalyzeCaseRequest): Promise<AnalyzeCase
 
     const result = await response.json();
     
+    // 🔍 DEBUG: Log what we received from backend
+    console.log('📥 Backend Response:', {
+      hasActionPlan: !!result.actionPlan,
+      hasDocuments: !!result.documents,
+      actionPlanKeys: result.actionPlan ? Object.keys(result.actionPlan) : [],
+      documentsKeys: result.documents ? Object.keys(result.documents) : [],
+    });
+    
     // Transform backend response to match your CrimeAnalyzer format
-    return transformBackendResponse(result);
+    const transformed = transformBackendResponse(result);
+    
+    // 🔍 DEBUG: Log what we're sending to the UI
+    console.log('📤 Transformed Response:', {
+      hasActionPlan: !!transformed.actionPlan,
+      hasDocuments: !!transformed.documents,
+    });
+    
+    return transformed;
   } catch (error) {
     console.error('API Error:', error);
     throw error;

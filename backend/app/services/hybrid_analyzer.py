@@ -493,12 +493,29 @@ Return complete valid JSON with primary_sections, conditional_sections, and reje
         data = self._safe_json_parse(ai_response["text"])
         
         if not data:
-            print(f"\n❌ JSON parse failed")
+            print(f"\n❌ JSON parse failed - falling back to keyword analysis")
+            # Fallback: Try keyword matching as backup
+            from app.services.keyword_matcher import KeywordMatcher
+            keyword_matcher = KeywordMatcher()
+            fallback_sections = keyword_matcher.match_sections(description, classification)
+            
+            if fallback_sections:
+                print(f"✅ Keyword fallback found {len(fallback_sections)} sections")
+                return {
+                    "sections": fallback_sections,
+                    "confidence": classification.confidence * 0.7,
+                    "method": "keyword_fallback",
+                    "warnings": ["AI response parsing failed - using keyword matching"],
+                    "provider_used": ai_response['provider'],
+                    "validation_result": None
+                }
+            
+            print(f"⚠️ No fallback sections found either")
             return {
                 "sections": [],
                 "confidence": 0.0,
                 "method": "json_parse_failed",
-                "warnings": ["Failed to parse AI response"],
+                "warnings": ["Failed to parse AI response and no keyword matches found"],
                 "provider_used": ai_response['provider'],
                 "validation_result": None
             }

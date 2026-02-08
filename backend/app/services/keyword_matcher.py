@@ -198,7 +198,21 @@ class KeywordMatcher:
         potential_categories = category_map.get(classification.category, [])
         if not potential_categories:
             print(f"⚠️ No mapping for category: {classification.category}")
-            return []
+            # For General/Other, try to match against all categories
+            if classification.category in ["General/Other", "General"]:
+                print(f"   Trying broad keyword search across all categories...")
+                for cat_name, patterns in self.category_patterns.items():
+                    for pattern in patterns:
+                        if re.search(pattern, desc_lower):
+                            print(f"   Found match in {cat_name} category")
+                            potential_categories.append(category_map.get(cat_name, [])[0] if category_map.get(cat_name) else None)
+                            break
+                # Remove None values
+                potential_categories = [c for c in potential_categories if c]
+            
+            if not potential_categories:
+                print(f"   No categories found even after broad search")
+                return []
         
         # STEP 3: Force cyber sections first if digital context
         if asset_type == "digital_identity":

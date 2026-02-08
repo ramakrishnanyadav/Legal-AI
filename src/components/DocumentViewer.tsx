@@ -130,8 +130,7 @@ const DocumentViewer = ({ documents }: DocumentViewerProps) => {
     try {
       // Import the PDF generator function dynamically
       import('@/lib/firPdfGenerator').then(({ generateFIRPDFFromBackend }) => {
-        import('@/lib/logger').then(({ log }) => {
-          try {
+        try {
             // Get user info from auth context if available
             const userInfo = {
               name: '[Your Full Name]',

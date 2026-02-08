@@ -45,6 +45,8 @@ const ViewConsultations = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'accepted' | 'rejected'>('all');
   const [selectedConsultation, setSelectedConsultation] = useState<Consultation | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectAll, setSelectAll] = useState(false);
   const [showModal, setShowModal] = useState(false); // ✅ ADDED
 
   useEffect(() => {
@@ -112,6 +114,46 @@ const ViewConsultations = () => {
     setShowModal(true);
   };
 
+  const toggleSelect = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+    setSelectAll(newSelected.size === filteredConsultations.length);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectAll) {
+      setSelectedIds(new Set());
+      setSelectAll(false);
+    } else {
+      setSelectedIds(new Set(filteredConsultations.map(c => c.id)));
+      setSelectAll(true);
+    }
+  };
+
+  const bulkUpdateStatus = async (newStatus: 'accepted' | 'rejected') => {
+    if (selectedIds.size === 0) {
+      toast.error('No consultations selected');
+      return;
+    }
+    try {
+      const updates = Array.from(selectedIds).map(id =>
+        updateDoc(doc(db, 'consultationRequests', id), { status: newStatus })
+      );
+      await Promise.all(updates);
+      toast.success(`${selectedIds.size} consultation(s) ${newStatus}`);
+      setSelectedIds(new Set());
+      setSelectAll(false);
+      loadConsultations();
+    } catch (error) {
+      toast.error('Failed to update consultations');
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -166,9 +208,9 @@ const ViewConsultations = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-y-auto">
       {/* Header */}
-      <header className="sticky top-0 z-50 glass border-b border-white/10">
+      <header className="sticky top-0 z-50 glass border-b border-white/10 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link to="/admin" className="flex items-center gap-2">
@@ -198,8 +240,56 @@ const ViewConsultations = () => {
           ))}
         </div>
 
+        {/* Bulk Actions */}
+        {selectedIds.size > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass rounded-xl p-4 border border-primary/30 mb-6"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-sm font-medium">
+                {selectedIds.size} consultation(s) selected
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => bulkUpdateStatus('accepted')}
+                  className="px-4 py-2 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 transition-colors flex items-center gap-2 text-sm"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Accept Selected
+                </button>
+                <button
+                  onClick={() => bulkUpdateStatus('rejected')}
+                  className="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 transition-colors flex items-center gap-2 text-sm"
+                >
+                  <XCircle className="w-4 h-4" />
+                  Reject Selected
+                </button>
+                <button
+                  onClick={() => { setSelectedIds(new Set()); setSelectAll(false); }}
+                  className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Search & Filter */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
+          {filteredConsultations.length > 0 && (
+            <label className="flex items-center gap-2 px-4 py-3 rounded-xl glass border border-white/10 cursor-pointer hover:border-primary/30 transition-colors">
+              <input
+                type="checkbox"
+                checked={selectAll}
+                onChange={toggleSelectAll}
+                className="w-5 h-5 rounded border-2 border-primary bg-transparent checked:bg-primary cursor-pointer"
+              />
+              <span className="text-sm font-medium">Select All ({filteredConsultations.length})</span>
+            </label>
+          )}
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input
@@ -245,9 +335,25 @@ const ViewConsultations = () => {
                 key={consultation.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="glass rounded-xl p-6 border border-white/10 hover:border-primary/50 transition-all"
+                className={`glass rounded-xl p-6 border transition-all ${
+                  selectedIds.has(consultation.id) 
+                    ? 'border-primary/50 bg-primary/5' 
+                    : 'border-white/10 hover:border-primary/30'
+                }`}
               >
-                <div className="flex items-start justify-between gap-4 mb-4">
+                <div className="flex items-start gap-4 mb-4">
+                  {/* Checkbox */}
+                  <label className="flex items-center pt-1 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(consultation.id)}
+                      onChange={() => toggleSelect(consultation.id)}
+                      className="w-5 h-5 rounded border-2 border-primary bg-transparent checked:bg-primary cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </label>
+
+                  <div className="flex-1 flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <h3 className="font-bold text-lg">{consultation.userName}</h3>

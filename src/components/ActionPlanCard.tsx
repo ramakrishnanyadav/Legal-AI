@@ -111,6 +111,7 @@ interface ActionPlanCardProps {
 const ActionPlanCard = ({ actionPlan }: ActionPlanCardProps) => {
   const [expandedSection, setExpandedSection] = useState<string>('steps');
   const [checkedDocs, setCheckedDocs] = useState<Set<string>>(new Set());
+  const [showPremiumFeatures, setShowPremiumFeatures] = useState(false);
 
   // ✨ Extract premium features
   const victoryPrediction = (actionPlan as any)?.victoryPrediction;

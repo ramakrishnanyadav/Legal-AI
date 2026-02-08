@@ -750,38 +750,120 @@ const ActionPlanCard = ({ actionPlan }: ActionPlanCardProps) => {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="glass rounded-2xl p-6 mb-6"
         >
-          <h3 className="text-xl font-bold mb-6">Premium Analysis</h3>
-          
-          <div className="grid md:grid-cols-3 gap-4 mb-6">
-            {/* Victory Prediction */}
-            <div className="p-6 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 text-center">
-              <p className="text-sm text-muted-foreground mb-2">Victory Chance</p>
-              <div className="text-5xl font-bold text-green-400 mb-2">
-                {victoryPrediction.victoryChance}%
-              </div>
-              <p className="text-lg font-semibold text-green-300">{victoryPrediction.verdict}</p>
+          {/* Header with Close Button */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent mb-1">
+                Premium Analysis
+              </h3>
+              <p className="text-sm text-muted-foreground">Detailed insights for your case</p>
             </div>
-            
-            {/* Duration */}
-            {durationEstimate && durationEstimate.averageMonths !== undefined && (
-              <div className="p-6 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 text-center">
-                <p className="text-sm text-muted-foreground mb-2">Duration</p>
-                <div className="text-5xl font-bold text-purple-400 mb-2">
-                  {durationEstimate.averageMonths}
+            <button
+              onClick={() => setShowPremiumFeatures(false)}
+              className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+              title="Hide premium features"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* Premium Features Grid */}
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            {/* Victory Prediction Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="relative group"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all" />
+              <div className="relative glass rounded-2xl p-6 border-2 border-green-500/30 hover:border-green-400/50 transition-all">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-2 rounded-lg bg-green-500/20">
+                    <Target className="w-5 h-5 text-green-400" />
+                  </div>
+                  <span className="text-xs font-semibold text-green-400 uppercase tracking-wider">Victory Chance</span>
                 </div>
-                <p className="text-sm text-muted-foreground">months (avg)</p>
+                <div className="text-center mb-4">
+                  <div className="text-6xl font-black text-green-400 mb-2 leading-none">
+                    {victoryPrediction.victoryChance}%
+                  </div>
+                  <div className="inline-block px-4 py-1 rounded-full bg-green-500/20 border border-green-500/30">
+                    <span className="text-sm font-bold text-green-300">{victoryPrediction.verdict}</span>
+                  </div>
+                </div>
+                <div className="text-xs text-center text-muted-foreground">
+                  Based on statutory analysis
+                </div>
               </div>
+            </motion.div>
+            
+            {/* Duration Card */}
+            {durationEstimate && durationEstimate.averageMonths !== undefined && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="relative group"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all" />
+                <div className="relative glass rounded-2xl p-6 border-2 border-purple-500/30 hover:border-purple-400/50 transition-all">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="p-2 rounded-lg bg-purple-500/20">
+                      <Clock className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider">Timeline</span>
+                  </div>
+                  <div className="text-center mb-4">
+                    <div className="text-6xl font-black text-purple-400 mb-2 leading-none">
+                      {durationEstimate.averageMonths}
+                    </div>
+                    <div className="text-lg font-semibold text-purple-300 mb-1">months</div>
+                    <div className="text-xs text-muted-foreground">
+                      {durationEstimate.minimumMonths}-{durationEstimate.maximumMonths} months range
+                    </div>
+                  </div>
+                  <div className="text-xs text-center text-muted-foreground">
+                    Average case duration
+                  </div>
+                </div>
+              </motion.div>
             )}
             
-            {/* Costs */}
+            {/* Costs Card */}
             {detailedCosts && detailedCosts.averageCost !== undefined && (
-              <div className="p-6 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 text-center">
-                <p className="text-sm text-muted-foreground mb-2">Cost</p>
-                <div className="text-4xl font-bold text-emerald-400 mb-2">
-                  ₹{detailedCosts.averageCost.toLocaleString()}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="relative group"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all" />
+                <div className="relative glass rounded-2xl p-6 border-2 border-emerald-500/30 hover:border-emerald-400/50 transition-all">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="p-2 rounded-lg bg-emerald-500/20">
+                      <DollarSign className="w-5 h-5 text-emerald-400" />
+                    </div>
+                    <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Est. Cost</span>
+                  </div>
+                  <div className="text-center mb-4">
+                    <div className="text-5xl font-black text-emerald-400 mb-2 leading-none">
+                      ₹{(detailedCosts.averageCost / 100000).toFixed(1)}L
+                    </div>
+                    <div className="text-sm text-emerald-300 mb-1">
+                      ₹{detailedCosts.averageCost.toLocaleString()}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      ₹{detailedCosts.minimumCost.toLocaleString()} - ₹{detailedCosts.maximumCost.toLocaleString()}
+                    </div>
+                  </div>
+                  <div className="text-xs text-center text-muted-foreground">
+                    Estimated legal expenses
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground">average</p>
-              </div>
+              </motion.div>
             )}
           </div>
 

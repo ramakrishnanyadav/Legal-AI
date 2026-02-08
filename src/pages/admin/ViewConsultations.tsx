@@ -208,10 +208,10 @@ const ViewConsultations = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background overflow-y-auto">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Header */}
-      <header className="sticky top-0 z-50 glass border-b border-white/10 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <header className="flex-shrink-0 glass border-b border-white/10 backdrop-blur-xl z-50">
+        <div className="max-w-7xl mx-auto px-4 lg:px-6 py-3">
           <div className="flex items-center justify-between">
             <Link to="/admin" className="flex items-center gap-2">
               <Scale className="w-8 h-8 text-primary" />
@@ -222,8 +222,9 @@ const ViewConsultations = () => {
         </div>
       </header>
 
-      {/* Main */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      {/* Main - Scrollable Container */}
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-7xl mx-auto px-4 lg:px-6 py-4 pb-20">
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {stats.map((stat, index) => (
@@ -329,13 +330,13 @@ const ViewConsultations = () => {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredConsultations.map((consultation) => (
               <motion.div
                 key={consultation.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`glass rounded-xl p-6 border transition-all ${
+                className={`glass rounded-xl p-4 lg:p-6 border transition-all ${
                   selectedIds.has(consultation.id) 
                     ? 'border-primary/50 bg-primary/5' 
                     : 'border-white/10 hover:border-primary/30'
@@ -573,6 +574,8 @@ const ViewConsultations = () => {
           </motion.div>
         )}
       </AnimatePresence>
+        </div>
+      </main>
     </div>
   );
 };

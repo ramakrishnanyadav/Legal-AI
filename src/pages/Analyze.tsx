@@ -82,9 +82,18 @@ const Analyze = () => {
       setResults(response);
 
       // Save to Firestore
-      await saveCase(response);
+      const savedCaseId = await saveCase(response);
 
-      setTimeout(() => setStage('results'), 500);
+      // ✨ FIXED: Navigate to AnalyzeResults page with full data including premium features
+      setTimeout(() => {
+        navigate('/analyze-results', {
+          state: {
+            results: response,
+            caseType: caseType,
+            caseId: savedCaseId,
+          }
+        });
+      }, 500);
     } catch (error) {
       clearInterval(progressInterval);
       toast.error('Analysis failed. Please try again.');
@@ -92,8 +101,8 @@ const Analyze = () => {
     }
   };
 
-  const saveCase = async (analysisResults: AnalyzeCaseResponse) => {
-    if (!user) return;
+  const saveCase = async (analysisResults: AnalyzeCaseResponse): Promise<string | null> => {
+    if (!user) return null;
 
     try {
       const primarySection = analysisResults.sections.find(s => s.isPrimary);
@@ -170,10 +179,13 @@ const Analyze = () => {
       if (caseId) {
         setCurrentCaseId(caseId);
         toast.success('Case saved successfully');
+        return caseId;
       }
+      return null;
     } catch (error) {
       console.error('Error saving case:', error);
       toast.error('Failed to save case');
+      return null;
     }
   };
 

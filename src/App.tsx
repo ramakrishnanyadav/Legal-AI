@@ -23,6 +23,7 @@ const Register = lazy(() => import("./pages/Register"));
 // Lazy load user pages
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Analyze = lazy(() => import("./pages/Analyze"));
+const AnalyzeResults = lazy(() => import("./pages/AnalyzeResults")); // ✅ ADDED for premium features
 const Lawyers = lazy(() => import("./pages/Lawyers"));
 const Profile = lazy(() => import("./pages/Profile"));
 const CaseDetail = lazy(() => import("./pages/CaseDetail"));
@@ -132,6 +133,14 @@ const App = () => {
                       element={
                         <ProtectedRoute>
                           <Analyze />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/analyze-results" 
+                      element={
+                        <ProtectedRoute>
+                          <AnalyzeResults />
                         </ProtectedRoute>
                       } 
                     />

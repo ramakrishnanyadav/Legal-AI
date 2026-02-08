@@ -89,23 +89,11 @@ const Analyze = () => {
       });
 
       // Save to Firestore
-      const savedCaseId = await saveCase(response);
+      await saveCase(response);
 
-      // ✨ FIXED: Navigate to AnalyzeResults page with full data including premium features
-      console.log('🚀 Navigating to /analyze-results with:', {
-        hasActionPlan: !!response.actionPlan,
-        hasDocuments: !!response.documents,
-      });
-      
-      setTimeout(() => {
-        navigate('/analyze-results', {
-          state: {
-            results: response,
-            caseType: caseType,
-            caseId: savedCaseId,
-          }
-        });
-      }, 500);
+      // ⚠️ TEMPORARY: Show results on same page until vercel.json deploys
+      // Once vercel.json fixes routing, we can navigate to AnalyzeResults for premium features
+      setTimeout(() => setStage('results'), 500);
     } catch (error) {
       clearInterval(progressInterval);
       toast.error('Analysis failed. Please try again.');

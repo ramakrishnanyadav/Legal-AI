@@ -72,6 +72,21 @@ class ActionPlanGenerator:
             sections, description
         )
         
+        # ✨ NEW: Victory/Loss Prediction
+        victory_prediction = self._generate_victory_prediction(
+            sections, description, risk_assessment
+        )
+        
+        # ✨ NEW: Enhanced Case Duration Estimation
+        duration_estimate = self._generate_duration_estimate(
+            primary_section, is_non_bailable, description
+        )
+        
+        # ✨ NEW: Detailed Cost Breakdown
+        detailed_costs = self._generate_detailed_costs(
+            primary_section, is_non_bailable, duration_estimate
+        )
+        
         alternative_options = self._generate_alternatives(
             primary_section, description
         )
@@ -87,6 +102,10 @@ class ActionPlanGenerator:
             "estimatedTimeline": timeline,
             "costEstimate": cost_estimate,
             "riskAssessment": risk_assessment,
+            # ✨ NEW PREMIUM FEATURES
+            "victoryPrediction": victory_prediction,
+            "durationEstimate": duration_estimate,
+            "detailedCosts": detailed_costs,
             "alternativeOptions": alternative_options,
             "criticalDeadlines": critical_deadlines,
             "policeStationInfo": police_station_info,
@@ -555,6 +574,337 @@ class ActionPlanGenerator:
             return "Within 24 hours - File FIR"
         else:
             return "Within 3-7 days - File FIR"
+    
+    def _generate_victory_prediction(
+        self,
+        sections: List[LegalSection],
+        description: str,
+        risk_assessment: Dict
+    ) -> Dict:
+        """
+        Generate detailed victory/loss prediction with probabilities
+        """
+        primary = sections[0] if sections else None
+        
+        # Base probability from risk assessment
+        success_prob = risk_assessment.get("successProbability", 60) / 100
+        
+        # Calculate different outcome probabilities
+        # Victory = FIR registered + investigation + conviction
+        victory_chance = success_prob * 0.85  # 85% of success cases lead to victory
+        
+        # Partial victory = FIR + investigation but settlement/compromise
+        partial_victory_chance = success_prob * 0.10
+        
+        # Loss = No conviction or case dismissed
+        loss_chance = 1.0 - victory_chance - partial_victory_chance
+        
+        # Determine verdict
+        if victory_chance >= 0.70:
+            verdict = "STRONG CASE"
+            confidence = "HIGH"
+            color = "green"
+        elif victory_chance >= 0.50:
+            verdict = "MODERATE CASE"
+            confidence = "MEDIUM"
+            color = "yellow"
+        else:
+            verdict = "WEAK CASE"
+            confidence = "LOW"
+            color = "red"
+        
+        # Key factors affecting outcome
+        success_factors = []
+        risk_factors = []
+        
+        # Analyze evidence quality
+        evidence_keywords = ["screenshot", "cctv", "recording", "witness", "photo", "video", "proof", "document"]
+        evidence_count = sum(1 for kw in evidence_keywords if kw in description.lower())
+        
+        if evidence_count >= 3:
+            success_factors.append("Strong evidence base (multiple proof types)")
+        elif evidence_count >= 1:
+            success_factors.append("Some evidence available")
+        else:
+            risk_factors.append("Limited evidence mentioned - needs strengthening")
+        
+        # Analyze section strength
+        if len(sections) >= 3:
+            success_factors.append(f"Multiple serious offenses ({len(sections)} sections)")
+        elif len(sections) >= 2:
+            success_factors.append("Multiple applicable sections strengthen case")
+        
+        if primary and not primary.bailable:
+            success_factors.append("Non-bailable offense - stronger legal position")
+        elif primary and primary.bailable:
+            risk_factors.append("Bailable offense - accused can get bail")
+        
+        if primary and primary.cognizable:
+            success_factors.append("Cognizable offense - police must investigate")
+        
+        # Timing factors
+        if "immediately" in description.lower() or "right away" in description.lower():
+            success_factors.append("Immediate reporting shows genuineness")
+        elif "days ago" in description.lower() or "weeks ago" in description.lower():
+            risk_factors.append("Delayed reporting may weaken case")
+        
+        # Witness availability
+        if "witness" in description.lower():
+            success_factors.append("Witnesses available to support case")
+        else:
+            risk_factors.append("No witnesses mentioned - consider finding them")
+        
+        return {
+            "victoryChance": round(victory_chance * 100, 1),
+            "partialVictoryChance": round(partial_victory_chance * 100, 1),
+            "lossChance": round(loss_chance * 100, 1),
+            "verdict": verdict,
+            "confidence": confidence,
+            "confidenceColor": color,
+            "successFactors": success_factors if success_factors else ["Case filed under valid legal provision"],
+            "riskFactors": risk_factors if risk_factors else ["Standard legal risks apply"],
+            "recommendation": self._get_victory_recommendation(victory_chance),
+            "detailedAnalysis": {
+                "convictionProbability": round(victory_chance * 100, 1),
+                "settlementProbability": round(partial_victory_chance * 100, 1),
+                "dismissalProbability": round(loss_chance * 0.6 * 100, 1),
+                "acquittalProbability": round(loss_chance * 0.4 * 100, 1)
+            },
+            "improvementTips": self._get_improvement_tips(risk_factors, evidence_count)
+        }
+    
+    def _get_victory_recommendation(self, victory_chance: float) -> str:
+        """Get recommendation based on victory probability"""
+        if victory_chance >= 0.70:
+            return "STRONGLY RECOMMENDED - High likelihood of favorable outcome"
+        elif victory_chance >= 0.50:
+            return "RECOMMENDED - Reasonable chance of success with proper evidence"
+        elif victory_chance >= 0.30:
+            return "PROCEED WITH CAUTION - Strengthen evidence before filing"
+        else:
+            return "CONSULT LAWYER - Case needs significant strengthening"
+    
+    def _get_improvement_tips(self, risk_factors: List[str], evidence_count: int) -> List[str]:
+        """Get tips to improve victory chances"""
+        tips = []
+        
+        if evidence_count < 2:
+            tips.append("🔍 Collect more evidence: CCTV footage, screenshots, documents, receipts")
+        
+        if any("witness" in rf.lower() for rf in risk_factors):
+            tips.append("👥 Find and document witness statements immediately")
+        
+        if any("delay" in rf.lower() for rf in risk_factors):
+            tips.append("⏱️ File FIR immediately to avoid further delays")
+        
+        if any("bail" in rf.lower() for rf in risk_factors):
+            tips.append("⚖️ Oppose bail application with strong grounds")
+        
+        if not tips:
+            tips.append("✅ Focus on evidence preservation and timely legal action")
+        
+        return tips
+    
+    def _generate_duration_estimate(
+        self,
+        section: LegalSection,
+        is_non_bailable: bool,
+        description: str
+    ) -> Dict:
+        """
+        Generate detailed case duration estimation
+        """
+        # Base duration factors
+        investigation_duration = {
+            "min_months": 2,
+            "max_months": 6,
+            "average_months": 3
+        }
+        
+        chargesheet_duration = {
+            "min_months": 1,
+            "max_months": 3,
+            "average_months": 2
+        }
+        
+        trial_duration = {
+            "min_months": 12,
+            "max_months": 36,
+            "average_months": 18
+        }
+        
+        # Adjust based on complexity
+        complexity_keywords = ["multiple", "several", "many", "various", "complex"]
+        is_complex = any(kw in description.lower() for kw in complexity_keywords)
+        
+        if is_complex:
+            trial_duration["max_months"] = 48
+            trial_duration["average_months"] = 24
+        
+        # Calculate total duration
+        total_min = investigation_duration["min_months"] + chargesheet_duration["min_months"] + trial_duration["min_months"]
+        total_max = investigation_duration["max_months"] + chargesheet_duration["max_months"] + trial_duration["max_months"]
+        total_avg = investigation_duration["average_months"] + chargesheet_duration["average_months"] + trial_duration["average_months"]
+        
+        return {
+            "totalDuration": {
+                "minimum": f"{total_min} months ({total_min // 12} years)",
+                "maximum": f"{total_max} months ({total_max // 12} years)",
+                "average": f"{total_avg} months ({round(total_avg / 12, 1)} years)",
+                "mostLikely": f"{total_avg} months"
+            },
+            "phaseBreakdown": [
+                {
+                    "phase": "FIR Registration",
+                    "duration": "1-7 days",
+                    "description": "Filing complaint and FIR registration",
+                    "canExpedite": True,
+                    "expediteTip": "File FIR immediately, follow up daily"
+                },
+                {
+                    "phase": "Police Investigation",
+                    "duration": f"{investigation_duration['min_months']}-{investigation_duration['max_months']} months",
+                    "description": "Evidence collection, witness statements, accused questioning",
+                    "canExpedite": True,
+                    "expediteTip": "Provide all evidence upfront, follow up with IO weekly"
+                },
+                {
+                    "phase": "Chargesheet Filing",
+                    "duration": f"{chargesheet_duration['min_months']}-{chargesheet_duration['max_months']} months",
+                    "description": "Police submits investigation report to court",
+                    "canExpedite": False,
+                    "expediteTip": "Lawyer can file petition for speedy investigation"
+                },
+                {
+                    "phase": "Court Trial",
+                    "duration": f"{trial_duration['min_months']}-{trial_duration['max_months']} months",
+                    "description": "Court hearings, witness examination, arguments, judgment",
+                    "canExpedite": True,
+                    "expediteTip": "Request fast-track trial for serious offenses"
+                }
+            ],
+            "factorsAffectingDuration": [
+                "Court backlog and case load",
+                "Witness availability and cooperation",
+                "Evidence complexity and forensics",
+                "Defense lawyer tactics and adjournments",
+                "Judge transfers and court vacations"
+            ],
+            "expeditingOptions": [
+                {
+                    "option": "Fast-Track Court",
+                    "applicable": is_non_bailable,
+                    "benefit": "Reduces trial time by 30-50%",
+                    "requirement": "Available for serious/heinous crimes"
+                },
+                {
+                    "option": "Section 311 CrPC Application",
+                    "applicable": True,
+                    "benefit": "Request court to expedite proceedings",
+                    "requirement": "Valid grounds for urgency needed"
+                },
+                {
+                    "option": "Regular Follow-ups",
+                    "applicable": True,
+                    "benefit": "Prevents delays and adjournments",
+                    "requirement": "Active engagement with lawyer and court"
+                }
+            ],
+            "settlementTimeline": {
+                "mediation": "2-8 weeks",
+                "compromise": "1-3 months",
+                "civilSuit": "2-4 years"
+            }
+        }
+    
+    def _generate_detailed_costs(
+        self,
+        section: LegalSection,
+        is_non_bailable: bool,
+        duration_estimate: Dict
+    ) -> Dict:
+        """
+        Generate comprehensive cost breakdown with estimates
+        """
+        return {
+            "summary": {
+                "minimumCost": "₹22,000",
+                "averageCost": "₹1,50,000",
+                "maximumCost": "₹5,00,000",
+                "note": "Actual costs vary by city, lawyer experience, and case complexity"
+            },
+            "phaseWiseCosts": [
+                {
+                    "phase": "Initial FIR & Complaint",
+                    "items": [
+                        {"item": "FIR Filing", "cost": "Free", "mandatory": True},
+                        {"item": "Document printing/copies", "cost": "₹500-2,000", "mandatory": True},
+                        {"item": "Notary charges", "cost": "₹500-1,000", "mandatory": False},
+                        {"item": "Travel to police station", "cost": "₹500-2,000", "mandatory": True}
+                    ],
+                    "total": "₹1,500-5,000",
+                    "timeline": "Week 1"
+                },
+                {
+                    "phase": "Legal Consultation",
+                    "items": [
+                        {"item": "Initial lawyer consultation", "cost": "₹2,000-10,000", "mandatory": True},
+                        {"item": "Case documentation review", "cost": "₹2,000-5,000", "mandatory": True},
+                        {"item": "Legal opinion/strategy", "cost": "₹5,000-15,000", "mandatory": False}
+                    ],
+                    "total": "₹9,000-30,000",
+                    "timeline": "Week 1-2"
+                },
+                {
+                    "phase": "Investigation Stage",
+                    "items": [
+                        {"item": "Lawyer retainer fee", "cost": "₹15,000-50,000", "mandatory": True},
+                        {"item": "Police station visits", "cost": "₹2,000-5,000", "mandatory": True},
+                        {"item": "Evidence collection", "cost": "₹5,000-20,000", "mandatory": True},
+                        {"item": "Private investigation (if needed)", "cost": "₹20,000-1,00,000", "mandatory": False}
+                    ],
+                    "total": "₹42,000-1,75,000",
+                    "timeline": "Months 1-6"
+                },
+                {
+                    "phase": "Court Proceedings",
+                    "items": [
+                        {"item": "Lawyer court appearance fees", "cost": "₹2,000-10,000 per hearing", "mandatory": True},
+                        {"item": "Total hearings (estimated)", "cost": "20-40 hearings", "mandatory": True},
+                        {"item": "Court fees & stamps", "cost": "₹5,000-15,000", "mandatory": True},
+                        {"item": "Witness expenses", "cost": "₹5,000-20,000", "mandatory": False}
+                    ],
+                    "total": "₹50,000-4,00,000",
+                    "timeline": "Months 6-24"
+                }
+            ],
+            "additionalCosts": [
+                {"category": "Forensic Evidence", "cost": "₹10,000-50,000", "when": "If technical analysis needed"},
+                {"category": "Expert Witnesses", "cost": "₹15,000-1,00,000", "when": "For medical/technical testimony"},
+                {"category": "Appeals", "cost": "₹50,000-2,00,000", "when": "If appealing lower court decision"},
+                {"category": "Bail Application", "cost": "₹10,000-50,000", "when": "For non-bailable offenses (if needed)"}
+            ],
+            "costSavingTips": [
+                "💰 Use legal aid services if eligible (income < ₹3 lakh/year)",
+                "💰 Many lawyers offer free initial consultation",
+                "💰 Government forensic labs are cheaper than private",
+                "💰 Collect and organize evidence yourself to reduce lawyer time",
+                "💰 Attend hearings yourself to save lawyer appearance fees where possible"
+            ],
+            "paymentStructure": {
+                "options": [
+                    {"type": "One-time Fee", "amount": "Full amount upfront", "pros": "May get discount", "cons": "Large initial payment"},
+                    {"type": "Retainer + Appearances", "amount": "₹20,000 + ₹2,000/hearing", "pros": "Spread over time", "cons": "Can add up"},
+                    {"type": "Stage-wise Payment", "amount": "Pay at each stage", "pros": "Manageable chunks", "cons": "Slightly higher total"}
+                ],
+                "recommended": "Stage-wise payment for better cash flow management"
+            },
+            "financialAssistance": [
+                {"source": "State Legal Services Authority", "eligibility": "Income < ₹3 lakh/year", "benefit": "Free legal representation"},
+                {"source": "District Legal Services", "eligibility": "SC/ST/Women/Senior Citizens", "benefit": "Subsidized legal aid"},
+                {"source": "NGO Legal Aid", "eligibility": "Varies", "benefit": "Free or low-cost lawyers"}
+            ]
+        }
     
     def _generate_generic_plan(self) -> Dict:
         """Fallback plan when no sections identified"""

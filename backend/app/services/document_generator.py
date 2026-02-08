@@ -49,9 +49,16 @@ class DocumentGenerator:
             incident_date, incident_time, incident_place
         )
         
+        # ✨ NEW: Generate Marathi FIR
+        marathi_fir = self._generate_marathi_fir(
+            user_info, description, sections,
+            incident_date, incident_time, incident_place
+        )
+        
         return {
             "english": english_fir,
             "hindi": hindi_fir,
+            "marathi": marathi_fir,  # ✨ NEW
             "sections_applied": [s.code for s in sections],
             "document_type": "FIR Draft",
             "generated_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -216,6 +223,80 @@ _______________________
 3. [सहायक दस्तावेज]
 """
         return hindi_fir.strip()
+    
+    def _generate_marathi_fir(
+        self,
+        user_info: Dict,
+        description: str,
+        sections: List[LegalSection],
+        incident_date: str,
+        incident_time: str,
+        incident_place: str
+    ) -> str:
+        """Generate FIR in Marathi"""
+        
+        sections_text = ", ".join([s.code for s in sections]) if sections else "[लागू कलम]"
+        
+        marathi_fir = f"""
+प्रथम माहिती अहवाल (FIR)
+कलम 154 CrPC अंतर्गत
+
+सेवेत,
+ठाणे प्रभारी (SHO)
+[पोलीस ठाण्याचे नाव]
+[पत्ता]
+
+दिनांक: {datetime.now().strftime("%d/%m/%Y")}
+
+विषय: तक्रार नोंदणीसाठी विनंती
+
+महोदय/महोदया,
+
+तक्रारदाराचा तपशील:
+नाव: {user_info['name']}
+वडिलांचे/पतीचे नाव: {user_info['father_name']}
+वय: {user_info['age']}
+पत्ता: {user_info['address']}
+मोबाइल: {user_info['phone']}
+ईमेल: {user_info['email']}
+
+घटनेचा तपशील:
+घटनेची तारीख: {incident_date}
+घटनेची वेळ: {incident_time}
+घटनास्थळ: {incident_place}
+
+वस्तुस्थितीचा तपशील:
+
+{description}
+
+लागू कायदेशीर कलम:
+{sections_text}
+
+विनंती:
+वरील वस्तुस्थितीच्या आधारे, मी आपल्याकडे विनंती करतो/करते की:
+1. वरील कलमांअंतर्गत FIR नोंदवली जावी
+2. सखोल तपास केला जावा
+3. आरोपीविरुद्ध योग्य कायदेशीर कारवाई करावी
+4. मला FIR ची प्रत उपलब्ध करून द्यावी
+
+मी घोषित करतो/करते की वरील माहिती माझ्या माहितीनुसार सत्य आहे.
+
+भवदीय,
+
+_______________________
+[स्वाक्षरी]
+{user_info['name']}
+दिनांक: {datetime.now().strftime("%d/%m/%Y")}
+
+संलग्नक:
+1. ओळखपत्राची प्रत
+2. पत्त्याचा पुरावा
+3. [सहायक कागदपत्रे]
+
+---
+टीप: सर्वोच्च न्यायालयाच्या मार्गदर्शक तत्त्वांनुसार, संज्ञेय गुन्ह्यांसाठी पोलिसांनी FIR नोंदवणे आवश्यक आहे.
+"""
+        return marathi_fir.strip()
     
     def _format_sections_for_fir(self, sections: List[LegalSection]) -> str:
         """Format sections for FIR document"""

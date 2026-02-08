@@ -1,3 +1,0 @@
-# Force Render redeploy trigger
-# Updated: 2026-02-08 13:30
-# Reason: Fix KeywordMatcher category_patterns AttributeError

@@ -712,32 +712,38 @@ const ActionPlanCard = ({ actionPlan }: ActionPlanCardProps) => {
             )}
           </div>
 
-          {/* Strengths & Risks */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/20">
-              <p className="text-sm font-semibold text-green-400 mb-3">✓ Strengths</p>
-              <ul className="space-y-2">
-                {victoryPrediction.strengths?.slice(0, 3).map((strength, index) => (
-                  <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
-                    <span className="text-green-400">•</span>
-                    <span>{strength}</span>
-                  </li>
-                ))}
-              </ul>
+          {/* Strengths & Risks - Only show if data exists */}
+          {(victoryPrediction.strengths?.length > 0 || victoryPrediction.risks?.length > 0) && (
+            <div className="grid md:grid-cols-2 gap-4">
+              {victoryPrediction.strengths?.length > 0 && (
+                <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/20">
+                  <p className="text-sm font-semibold text-green-400 mb-3">✓ Strengths</p>
+                  <ul className="space-y-2">
+                    {victoryPrediction.strengths.slice(0, 3).map((strength, index) => (
+                      <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <span className="text-green-400">•</span>
+                        <span>{strength}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {victoryPrediction.risks?.length > 0 && (
+                <div className="p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/20">
+                  <p className="text-sm font-semibold text-yellow-400 mb-3">⚠ Risks</p>
+                  <ul className="space-y-2">
+                    {victoryPrediction.risks.slice(0, 3).map((risk, index) => (
+                      <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <span className="text-yellow-400">•</span>
+                        <span>{risk}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
-            
-            <div className="p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/20">
-              <p className="text-sm font-semibold text-yellow-400 mb-3">⚠ Risks</p>
-              <ul className="space-y-2">
-                {victoryPrediction.risks?.slice(0, 3).map((risk, index) => (
-                  <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
-                    <span className="text-yellow-400">•</span>
-                    <span>{risk}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+          )}
         </motion.div>
       )}
 

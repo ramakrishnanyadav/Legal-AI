@@ -149,10 +149,9 @@ const DocumentViewer = ({ documents }: DocumentViewerProps) => {
             generateFIRPDFFromBackend(caseData, documents, userInfo);
             toast.success('FIR PDF generated successfully!');
           } catch (error) {
-            log.error('Error generating FIR PDF', error, 'DocumentViewer');
+            console.error('Error generating FIR PDF', error);
             toast.error('Failed to generate PDF');
           }
-        });
       });
     } catch (error) {
       console.error('Failed to load PDF generator module:', error);

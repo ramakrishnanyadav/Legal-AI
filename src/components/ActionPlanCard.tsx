@@ -165,53 +165,7 @@ const ActionPlanCard = ({ actionPlan }: ActionPlanCardProps) => {
 
   return (
     <div className="space-y-6">
-      {/* ✨ PREMIUM FEATURES Display */}
-      {(victoryPrediction || durationEstimate || detailedCosts) && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          {victoryPrediction && (
-            <div className="glass rounded-2xl p-6 border-2 border-green-500/30">
-              <div className="flex items-center gap-2 mb-3">
-                <TrendingUp className="w-5 h-5 text-green-500" />
-                <h3 className="font-bold text-green-600">Victory Chance</h3>
-              </div>
-              <div className="text-6xl font-black text-green-600 text-center mb-2">
-                {victoryPrediction.victoryChance}%
-              </div>
-              <div className="text-center text-sm font-semibold text-green-700">
-                {victoryPrediction.verdict}
-              </div>
-            </div>
-          )}
-          {durationEstimate && (
-            <div className="glass rounded-2xl p-6 border-2 border-purple-500/30">
-              <div className="flex items-center gap-2 mb-3">
-                <Clock className="w-5 h-5 text-purple-500" />
-                <h3 className="font-bold text-purple-600">Duration</h3>
-              </div>
-              <div className="text-5xl font-black text-purple-600 text-center mb-2">
-                {durationEstimate.totalDuration?.average || 'N/A'}
-              </div>
-              <p className="text-xs text-center text-muted-foreground">
-                {durationEstimate.totalDuration?.minimum} - {durationEstimate.totalDuration?.maximum}
-              </p>
-            </div>
-          )}
-          {detailedCosts && (
-            <div className="glass rounded-2xl p-6 border-2 border-emerald-500/30">
-              <div className="flex items-center gap-2 mb-3">
-                <DollarSign className="w-5 h-5 text-emerald-500" />
-                <h3 className="font-bold text-emerald-600">Cost</h3>
-              </div>
-              <div className="text-5xl font-black text-emerald-600 text-center mb-2">
-                {detailedCosts.summary?.averageCost || 'N/A'}
-              </div>
-              <p className="text-xs text-center text-muted-foreground">
-                {detailedCosts.summary?.minimumCost} - {detailedCosts.summary?.maximumCost}
-              </p>
-            </div>
-          )}
-        </div>
-      )}
+      {/* Premium features are now inside the unlock button only */}
 
       {/* Header with Urgency Indicator */}
       <motion.div
@@ -671,8 +625,8 @@ const ActionPlanCard = ({ actionPlan }: ActionPlanCardProps) => {
         </AnimatePresence>
       </motion.div>
 
-      {/* Premium Features Unlock Button */}
-      {victoryPrediction && !showPremiumFeatures && (
+      {/* Premium Action Plan Unlock Button */}
+      {!showPremiumFeatures && (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}

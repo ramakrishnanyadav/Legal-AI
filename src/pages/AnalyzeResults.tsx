@@ -226,20 +226,67 @@ const AnalyzeResults = () => {
         {/* Tab Content */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
-            {/* Overall Confidence */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="glass rounded-2xl p-6 text-center"
-            >
-              <p className="text-sm text-muted-foreground mb-2 text-center">Overall Confidence</p>
-              <div className="text-6xl font-bold gradient-text mb-2">
-                {normalizeConfidence(results.overallConfidence)}%
-              </div>
-              <p className="text-sm text-muted-foreground text-center">
-                Based on statutory match and case information
-              </p>
-            </motion.div>
+            {/* Quick Stats Grid - IPC Sections Highlighted */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="glass rounded-2xl p-6 text-center border-2 border-primary/30"
+              >
+                <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide">Overall Confidence</p>
+                <div className="text-5xl font-bold gradient-text mb-1">
+                  {normalizeConfidence(results.overallConfidence)}%
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Statutory Match
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="glass rounded-2xl p-6 text-center border-2 border-blue-500/30"
+              >
+                <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide">IPC Sections</p>
+                <div className="text-5xl font-bold text-blue-400 mb-1">
+                  {results.sections.length}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Applicable Laws
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="glass rounded-2xl p-6 text-center border-2 border-yellow-500/30"
+              >
+                <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide">Severity</p>
+                <div className="text-3xl font-bold text-yellow-400 mb-1">
+                  {results.severity}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Case Level
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="glass rounded-2xl p-6 text-center border-2 border-green-500/30"
+              >
+                <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide">Bail Status</p>
+                <div className="text-2xl font-bold text-green-400 mb-1">
+                  {results.bail}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Eligibility
+                </p>
+              </motion.div>
+            </div>
 
             {/* Summary */}
             <motion.div
@@ -615,11 +662,17 @@ const AnalyzeResults = () => {
                 <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="text-xl font-bold mb-2">Documents Not Available</h3>
                 <p className="text-muted-foreground mb-4">
-                  Premium document generation is only available for logged-in users.
+                  {location.state?.results ? (
+                    'Document generation is processing. Please check back in a few moments or contact support if this persists.'
+                  ) : (
+                    'Premium document generation is only available for logged-in users.'
+                  )}
                 </p>
-                <p className="text-sm text-muted-foreground text-center">
-                  Login to access FIR drafts, written complaints, and evidence checklists.
-                </p>
+                {!location.state?.results && (
+                  <p className="text-sm text-muted-foreground text-center">
+                    Login to access FIR drafts, written complaints, and evidence checklists.
+                  </p>
+                )}
               </div>
             )}
           </>

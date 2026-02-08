@@ -49,9 +49,24 @@ export interface ApiError {
 // API Functions
 export async function analyzeCase(data: AnalyzeCaseRequest): Promise<AnalyzeCaseResponse> {
   try {
-    // ✨ Get user auth state from Firebase
+    // ✨ Get user auth state from Firebase - WAIT for auth to be ready
     const { auth } = await import('./firebase');
-    const user = auth.currentUser;
+    
+    // ⚠️ CRITICAL FIX: Wait for auth state to be ready
+    // auth.currentUser can be null even if user is logged in if auth hasn't initialized
+    const user = await new Promise<any>((resolve) => {
+      const unsubscribe = auth.onAuthStateChanged((user) => {
+        unsubscribe();
+        resolve(user);
+      });
+      // Timeout after 2 seconds to prevent hanging
+      setTimeout(() => {
+        unsubscribe();
+        resolve(auth.currentUser);
+      }, 2000);
+    });
+    
+    console.log('🔐 Auth State:', user ? `Logged in as ${user.email}` : 'Guest user');
     
     const response = await fetch(`${API_BASE}/api/analyze-case`, {
       method: 'POST',
@@ -62,7 +77,7 @@ export async function analyzeCase(data: AnalyzeCaseRequest): Promise<AnalyzeCase
         description: data.description,
         role: data.role || 'victim',
         urgency: data.urgency || false,
-        // ✨ ADDED: Send auth data for premium features
+        // ✨ FIXED: Now properly sends auth data for premium features
         user_id: user?.uid || null,
         is_authenticated: !!user,
       }),

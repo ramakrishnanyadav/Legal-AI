@@ -670,11 +670,83 @@ const ActionPlanCard = ({ actionPlan }: ActionPlanCardProps) => {
         </AnimatePresence>
       </motion.div>
 
-      {/* Premium Features - Victory, Duration, Costs */}
-      {victoryPrediction && (
+      {/* Premium Features Unlock Button */}
+      {victoryPrediction && !showPremiumFeatures && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="mb-6 relative"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-red-500/20 rounded-2xl blur-xl animate-pulse" />
+          <button
+            onClick={() => setShowPremiumFeatures(true)}
+            className="relative w-full group"
+          >
+            <div className="glass rounded-2xl p-8 border-2 border-gradient-to-r from-yellow-500/50 to-orange-500/50 hover:border-yellow-400 transition-all duration-300 hover:scale-105">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 text-left">
+                  <div className="flex items-center gap-3 mb-2">
+                    <motion.div
+                      animate={{ 
+                        rotate: [0, 10, -10, 10, 0],
+                        scale: [1, 1.1, 1.1, 1.1, 1]
+                      }}
+                      transition={{ 
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatDelay: 1
+                      }}
+                    >
+                      <Target className="w-8 h-8 text-yellow-400" />
+                    </motion.div>
+                    <h3 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+                      Unlock Premium Analysis
+                    </h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Get detailed victory prediction, timeline estimates, and cost analysis
+                  </p>
+                  <div className="flex gap-4 text-xs">
+                    <div className="flex items-center gap-1">
+                      <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                      <span>Victory Chance</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
+                      <span>Duration</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                      <span>Costs</span>
+                    </div>
+                  </div>
+                </div>
+                <motion.div
+                  animate={{ 
+                    x: [0, 10, 0],
+                  }}
+                  transition={{ 
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                  className="text-4xl"
+                >
+                  ✨
+                </motion.div>
+              </div>
+            </div>
+          </button>
+        </motion.div>
+      )}
+
+      {/* Premium Features - Victory, Duration, Costs */}
+      {victoryPrediction && showPremiumFeatures && (
+        <motion.div
+          initial={{ opacity: 0, y: 20, height: 0 }}
+          animate={{ opacity: 1, y: 0, height: "auto" }}
+          exit={{ opacity: 0, y: -20, height: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
           className="glass rounded-2xl p-6 mb-6"
         >
           <h3 className="text-xl font-bold mb-6">Premium Analysis</h3>

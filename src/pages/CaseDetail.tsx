@@ -25,6 +25,8 @@ import { getCaseById, CaseRecord, FIRData } from '@/lib/storage';
 import { toast } from 'sonner';
 import AnimatedButton from '@/components/AnimatedButton';
 import EvidenceManager from '@/components/EvidenceManager';
+import { PremiumFeatureCards } from '@/components/PremiumFeatureCards';
+import ActionPlanCard from '@/components/ActionPlanCard';
 
 // ✅ Moved OUTSIDE CaseDetail — stable reference, no remount on every keystroke
 const EditableField = ({
@@ -590,6 +592,23 @@ const CaseDetail = () => {
               </div>
             )}
           </div>
+
+          {/* Premium Features Section */}
+          {caseData.analysisResults?.actionPlan && (
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-4">Premium Analysis</h2>
+              
+              {/* Premium Feature Cards */}
+              <div className="mb-6">
+                <PremiumFeatureCards actionPlan={caseData.analysisResults.actionPlan} />
+              </div>
+              
+              {/* Full Action Plan */}
+              <div className="glass rounded-2xl p-6">
+                <ActionPlanCard actionPlan={caseData.analysisResults.actionPlan} />
+              </div>
+            </div>
+          )}
 
           {/* Evidence Management Section */}
           <div className="glass rounded-2xl p-6 mb-6">

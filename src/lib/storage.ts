@@ -189,13 +189,13 @@ export const updateEvidenceChecklist = async (
 /**
  * Get all cases for a user
  */
-export const getUserCases = async (userId: string): Promise<CaseRecord[]> => {
+export const getUserCases = async (userId: string, limitCount: number = 100): Promise<CaseRecord[]> => {
   try {
     const q = query(
       collection(db, CASES_COLLECTION),
       where('userId', '==', userId),
       orderBy('createdAt', 'desc'),
-      limit(50)
+      limit(limitCount)
     );
     
     const querySnapshot = await getDocs(q);
@@ -208,6 +208,7 @@ export const getUserCases = async (userId: string): Promise<CaseRecord[]> => {
       } as CaseRecord);
     });
     
+    console.log(`✅ Fetched ${cases.length} cases for user ${userId}`);
     return cases;
   } catch (error) {
     console.error('❌ Error fetching cases:', error);

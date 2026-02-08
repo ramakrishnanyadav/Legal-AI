@@ -161,6 +161,9 @@ const Analyze = () => {
           isPrimary: section.isPrimary || false,
           reasoning: section.reasoning || '',
           matchedKeywords: section.matchedKeywords || [],
+          punishment: section.punishment || '',
+          bailable: section.bailable || false,
+          cognizable: section.cognizable || false,
         })),
         severity: analysisResults.severity || 'Unknown',
         maxPunishment: analysisResults.maxPunishment || 'To be determined',
@@ -169,6 +172,13 @@ const Analyze = () => {
         bailProbability: normalizeConfidence(analysisResults.bailProbability || 50),
         overallConfidence: normalizeConfidence(analysisResults.overallConfidence || 50),
         next_steps: analysisResults.next_steps || [],
+        // 🆕 PREMIUM FEATURES - Store in Firebase
+        actionPlan: analysisResults.actionPlan || null,
+        documents: analysisResults.documents || null,
+        // Store individual premium features for easy access
+        victoryPrediction: analysisResults.actionPlan?.victoryPrediction || null,
+        durationEstimate: analysisResults.actionPlan?.durationEstimate || null,
+        detailedCosts: analysisResults.actionPlan?.detailedCosts || null,
       };
 
       const caseData = removeUndefined({

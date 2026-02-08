@@ -647,10 +647,7 @@ const AnalyzeResults = () => {
         )}
 
         {activeTab === 'action-plan' && results.actionPlan && (
-          <>
-            <PremiumFeatureCards actionPlan={results.actionPlan} />
-            <ActionPlanCard actionPlan={results.actionPlan} />
-          </>
+          <ActionPlanCard actionPlan={results.actionPlan} />
         )}
 
         {activeTab === 'documents' && (

@@ -670,7 +670,76 @@ const ActionPlanCard = ({ actionPlan }: ActionPlanCardProps) => {
         </AnimatePresence>
       </motion.div>
 
-      {/* Victory Prediction is now shown in PremiumFeatureCards - removed from here to avoid duplication */}
+      {/* Premium Features - Victory, Duration, Costs */}
+      {victoryPrediction && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass rounded-2xl p-6 mb-6"
+        >
+          <h3 className="text-xl font-bold mb-6">Premium Analysis</h3>
+          
+          <div className="grid md:grid-cols-3 gap-4 mb-6">
+            {/* Victory Prediction */}
+            <div className="p-6 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 text-center">
+              <p className="text-sm text-muted-foreground mb-2">Victory Chance</p>
+              <div className="text-5xl font-bold text-green-400 mb-2">
+                {victoryPrediction.victoryChance}%
+              </div>
+              <p className="text-lg font-semibold text-green-300">{victoryPrediction.verdict}</p>
+            </div>
+            
+            {/* Duration */}
+            {durationEstimate && (
+              <div className="p-6 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 text-center">
+                <p className="text-sm text-muted-foreground mb-2">Duration</p>
+                <div className="text-5xl font-bold text-purple-400 mb-2">
+                  {durationEstimate.averageMonths}
+                </div>
+                <p className="text-sm text-muted-foreground">months (avg)</p>
+              </div>
+            )}
+            
+            {/* Costs */}
+            {detailedCosts && (
+              <div className="p-6 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 text-center">
+                <p className="text-sm text-muted-foreground mb-2">Cost</p>
+                <div className="text-4xl font-bold text-emerald-400 mb-2">
+                  ₹{detailedCosts.averageCost.toLocaleString()}
+                </div>
+                <p className="text-sm text-muted-foreground">average</p>
+              </div>
+            )}
+          </div>
+
+          {/* Strengths & Risks */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/20">
+              <p className="text-sm font-semibold text-green-400 mb-3">✓ Strengths</p>
+              <ul className="space-y-2">
+                {victoryPrediction.strengths?.slice(0, 3).map((strength, index) => (
+                  <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
+                    <span className="text-green-400">•</span>
+                    <span>{strength}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            <div className="p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/20">
+              <p className="text-sm font-semibold text-yellow-400 mb-3">⚠ Risks</p>
+              <ul className="space-y-2">
+                {victoryPrediction.risks?.slice(0, 3).map((risk, index) => (
+                  <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
+                    <span className="text-yellow-400">•</span>
+                    <span>{risk}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Alternative Options */}
       {actionPlan.alternativeOptions.length > 0 && (
